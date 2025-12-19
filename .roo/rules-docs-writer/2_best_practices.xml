@@ -1,0 +1,251 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<documentation_best_practices>
+  <overview>
+    Guidelines and conventions for writing high-quality technical documentation
+    that is clear, consistent, and maintainable.
+  </overview>
+
+  <general_principles>
+    <principle priority="high">
+      <name>Audience-First Writing</name>
+      <description>Always write with your target audience in mind</description>
+      <rationale>Documentation is only useful if readers can understand it</rationale>
+      <guidelines>
+        <guideline>Identify the technical level of your audience</guideline>
+        <guideline>Use appropriate terminology and jargon</guideline>
+        <guideline>Provide context for complex concepts</guideline>
+        <guideline>Include prerequisites when necessary</guideline>
+      </guidelines>
+    </principle>
+
+    <principle priority="high">
+      <name>Clarity Over Brevity</name>
+      <description>Be clear first, concise second</description>
+      <rationale>Unclear documentation leads to confusion and errors</rationale>
+      <guidelines>
+        <guideline>Use simple, direct language</guideline>
+        <guideline>Avoid ambiguous terms</guideline>
+        <guideline>Define technical terms on first use</guideline>
+        <guideline>Use active voice when possible</guideline>
+      </guidelines>
+      <example>
+        <bad>The configuration can be modified.</bad>
+        <good>You can modify the configuration by editing config.yaml.</good>
+      </example>
+    </principle>
+
+    <principle priority="high">
+      <name>Consistent Structure</name>
+      <description>Maintain consistent formatting and organization</description>
+      <rationale>Consistency helps readers navigate and understand documentation</rationale>
+      <guidelines>
+        <guideline>Use consistent heading levels</guideline>
+        <guideline>Follow the same format for similar content</guideline>
+        <guideline>Use templates for recurring documentation types</guideline>
+        <guideline>Maintain consistent code example formatting</guideline>
+      </guidelines>
+    </principle>
+
+    <principle priority="medium">
+      <name>Keep It Current</name>
+      <description>Documentation should reflect the current state of the code</description>
+      <rationale>Outdated documentation is worse than no documentation</rationale>
+      <guidelines>
+        <guideline>Update documentation when code changes</guideline>
+        <guideline>Include version information where relevant</guideline>
+        <guideline>Mark deprecated features clearly</guideline>
+        <guideline>Review documentation regularly</guideline>
+      </guidelines>
+    </principle>
+  </general_principles>
+
+  <writing_guidelines>
+    <category name="headings">
+      <rule>Use descriptive, action-oriented headings</rule>
+      <rule>Follow a logical hierarchy (H1 → H2 → H3)</rule>
+      <rule>Keep headings concise but informative</rule>
+      <examples>
+        <good>Installing the Application</good>
+        <good>Configuring Database Connections</good>
+        <bad>Installation</bad>
+        <bad>Step 1</bad>
+      </examples>
+    </category>
+
+    <category name="paragraphs">
+      <rule>Keep paragraphs short (3-5 sentences)</rule>
+      <rule>One idea per paragraph</rule>
+      <rule>Use topic sentences</rule>
+      <rule>Add blank lines between paragraphs</rule>
+    </category>
+
+    <category name="lists">
+      <rule>Use bullet points for unordered items</rule>
+      <rule>Use numbered lists for sequential steps</rule>
+      <rule>Keep list items parallel in structure</rule>
+      <rule>Limit nesting to 2 levels</rule>
+      <examples>
+        <good>
+          1. Install dependencies
+          2. Configure the database
+          3. Start the server
+        </good>
+        <bad>
+          1. First you need to install dependencies
+          2. Database configuration
+          3. Starting
+        </bad>
+      </examples>
+    </category>
+
+    <category name="code_examples">
+      <rule>Always specify the language for syntax highlighting</rule>
+      <rule>Include comments explaining complex code</rule>
+      <rule>Show complete, runnable examples when possible</rule>
+      <rule>Use realistic but simple examples</rule>
+      <rule>Test all code examples before publishing</rule>
+      <format>
+        ```language
+        // Comment explaining the code
+        actual_code_here
+        ```
+      </format>
+    </category>
+
+    <category name="links">
+      <rule>Use descriptive link text (not "click here")</rule>
+      <rule>Link to related documentation</rule>
+      <rule>Use relative links for internal documentation</rule>
+      <rule>Verify all links are working</rule>
+      <examples>
+        <good>[Configuration Guide](./configuration.md)</good>
+        <bad>[Click here](./configuration.md) for configuration</bad>
+      </examples>
+    </category>
+  </writing_guidelines>
+
+  <formatting_standards>
+    <standard name="markdown">
+      <rule>Use ATX-style headers (# Header)</rule>
+      <rule>Use fenced code blocks with language identifiers</rule>
+      <rule>Use reference-style links for repeated URLs</rule>
+      <rule>Add alt text to images</rule>
+      <rule>Use tables for structured data</rule>
+    </standard>
+
+    <standard name="file_naming">
+      <rule>Use lowercase with hyphens (kebab-case)</rule>
+      <rule>Use descriptive names</rule>
+      <rule>Include file extension (.md, .rst)</rule>
+      <examples>
+        <good>getting-started.md</good>
+        <good>api-reference.md</good>
+        <bad>GettingStarted.md</bad>
+        <bad>doc1.md</bad>
+      </examples>
+    </standard>
+
+    <standard name="directory_structure">
+      <recommended_structure>
+        docs/
+        ├── README.md           # Documentation index
+        ├── getting-started.md  # Quick start guide
+        ├── installation.md     # Installation instructions
+        ├── configuration.md    # Configuration guide
+        ├── api/                # API documentation
+        │   ├── README.md
+        │   └── endpoints.md
+        ├── guides/             # User guides
+        │   └── ...
+        └── tutorials/          # Tutorials
+            └── ...
+      </recommended_structure>
+    </standard>
+  </formatting_standards>
+
+  <language_guidelines>
+    <guideline name="chinese_documentation">
+      <rules>
+        <rule>使用简体中文</rule>
+        <rule>中英文之间添加空格</rule>
+        <rule>使用中文标点符号</rule>
+        <rule>专业术语可保留英文，首次出现时提供中文解释</rule>
+        <rule>代码和命令保持英文</rule>
+      </rules>
+      <example>
+        <good>使用 Docker 容器部署应用程序。</good>
+        <bad>使用Docker容器部署应用程序。</bad>
+      </example>
+    </guideline>
+
+    <guideline name="english_documentation">
+      <rules>
+        <rule>Use American English spelling</rule>
+        <rule>Use sentence case for headings</rule>
+        <rule>Avoid contractions in formal documentation</rule>
+        <rule>Use Oxford comma in lists</rule>
+      </rules>
+    </guideline>
+
+    <guideline name="bilingual_documentation">
+      <rules>
+        <rule>Maintain parallel structure in both languages</rule>
+        <rule>Keep technical terms consistent</rule>
+        <rule>Use language-specific files (README.md, README_zh.md)</rule>
+        <rule>Link between language versions</rule>
+      </rules>
+    </guideline>
+  </language_guidelines>
+
+  <quality_checklist>
+    <category name="before_writing">
+      <item>Identify target audience</item>
+      <item>Review existing documentation</item>
+      <item>Understand the feature/topic thoroughly</item>
+      <item>Create an outline</item>
+    </category>
+
+    <category name="during_writing">
+      <item>Follow style guidelines</item>
+      <item>Use consistent terminology</item>
+      <item>Include relevant examples</item>
+      <item>Add cross-references</item>
+    </category>
+
+    <category name="before_publishing">
+      <item>Proofread for errors</item>
+      <item>Test all code examples</item>
+      <item>Verify all links work</item>
+      <item>Check formatting consistency</item>
+      <item>Review for completeness</item>
+      <item>Get peer review if possible</item>
+    </category>
+  </quality_checklist>
+
+  <common_pitfalls>
+    <pitfall>
+      <description>Assuming too much knowledge</description>
+      <why_problematic>Readers may not have the same background</why_problematic>
+      <correct_approach>Include prerequisites and explain concepts</correct_approach>
+    </pitfall>
+
+    <pitfall>
+      <description>Writing documentation after the fact</description>
+      <why_problematic>Details are forgotten, documentation becomes a chore</why_problematic>
+      <correct_approach>Write documentation alongside code development</correct_approach>
+    </pitfall>
+
+    <pitfall>
+      <description>Not updating documentation</description>
+      <why_problematic>Outdated docs cause confusion and errors</why_problematic>
+      <correct_approach>Include documentation updates in code review process</correct_approach>
+    </pitfall>
+
+    <pitfall>
+      <description>Over-documenting obvious code</description>
+      <why_problematic>Adds noise without value</why_problematic>
+      <correct_approach>Document the "why", not the "what"</correct_approach>
+    </pitfall>
+  </common_pitfalls>
+</documentation_best_practices>
+]]>

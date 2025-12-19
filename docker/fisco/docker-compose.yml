@@ -1,0 +1,33 @@
+services:
+  # FISCO BCOS 节点
+  fisco-node:
+    image: fiscoorg/fiscobcos:v2.9.1
+    container_name: fisco-node
+    restart: unless-stopped
+    ports:
+      # Channel 端口 - SDK 连接
+      - "20200:20200"
+      # JSON-RPC 端口
+      - "8545:8545"
+      # P2P 端口
+      - "30300:30300"
+    volumes:
+      # 节点配置和数据
+      - ./nodes/127.0.0.1/node0/conf:/data/conf
+      - ./nodes/127.0.0.1/node0/config.ini:/data/config.ini
+      - fisco_data:/data/data
+      - fisco_log:/data/log
+    working_dir: /data
+    command: ["-c", "config.ini"]
+    healthcheck:
+      test: ["CMD-SHELL", "ls /data/log/*.log 2>/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  fisco_data:
+    driver: local
+  fisco_log:
+    driver: local

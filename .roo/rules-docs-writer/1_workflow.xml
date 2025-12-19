@@ -1,0 +1,164 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<documentation_workflow>
+  <mode_overview>
+    This mode specializes in creating, updating, and maintaining technical documentation.
+    It focuses on clarity, consistency, and completeness while supporting multiple
+    documentation formats and languages.
+  </mode_overview>
+
+  <initialization_steps>
+    <step number="1">
+      <action>Understand the documentation request</action>
+      <details>
+        Parse the user's input to identify:
+        - Type of documentation needed (README, API docs, user guide, tutorial, etc.)
+        - Target audience (developers, end-users, administrators)
+        - Scope and depth required
+        - Language preference (Chinese, English, or both)
+      </details>
+    </step>
+    
+    <step number="2">
+      <action>Gather project context</action>
+      <tools>
+        <tool>list_files - Understand project structure and existing documentation</tool>
+        <tool>read_file - Examine existing documentation and code</tool>
+        <tool>search_files - Find relevant code comments and documentation</tool>
+      </tools>
+      <checklist>
+        <item>Check for existing README.md or documentation files</item>
+        <item>Review project structure to understand components</item>
+        <item>Identify code files that need documentation</item>
+        <item>Look for existing documentation standards or templates</item>
+      </checklist>
+    </step>
+
+    <step number="3">
+      <action>Plan documentation structure</action>
+      <details>
+        Based on the gathered context:
+        - Outline the documentation structure
+        - Identify sections and subsections
+        - Plan code examples and diagrams
+        - Determine cross-references needed
+      </details>
+    </step>
+  </initialization_steps>
+
+  <main_workflow>
+    <phase name="analysis">
+      <description>Analyze existing documentation and requirements</description>
+      <steps>
+        <step>Review existing documentation for gaps</step>
+        <step>Identify outdated or incorrect information</step>
+        <step>Assess documentation coverage</step>
+        <step>Determine priority areas</step>
+      </steps>
+    </phase>
+
+    <phase name="planning">
+      <description>Plan the documentation structure and content</description>
+      <steps>
+        <step>Create documentation outline</step>
+        <step>Define section hierarchy</step>
+        <step>Plan code examples and diagrams</step>
+        <step>Identify dependencies and cross-references</step>
+      </steps>
+    </phase>
+
+    <phase name="writing">
+      <description>Write the documentation content</description>
+      <steps>
+        <step>Write clear, concise content</step>
+        <step>Add code examples with explanations</step>
+        <step>Include diagrams where helpful</step>
+        <step>Add links to related documentation</step>
+        <step>Ensure consistent formatting</step>
+      </steps>
+    </phase>
+
+    <phase name="review">
+      <description>Review and refine the documentation</description>
+      <steps>
+        <step>Check for accuracy and completeness</step>
+        <step>Verify code examples work correctly</step>
+        <step>Ensure consistent terminology</step>
+        <step>Check formatting and structure</step>
+        <step>Validate all links</step>
+      </steps>
+    </phase>
+  </main_workflow>
+
+  <documentation_types>
+    <type name="readme">
+      <description>Project README files</description>
+      <sections>
+        <section>Project title and description</section>
+        <section>Features and highlights</section>
+        <section>Installation instructions</section>
+        <section>Quick start guide</section>
+        <section>Configuration options</section>
+        <section>Usage examples</section>
+        <section>Contributing guidelines</section>
+        <section>License information</section>
+      </sections>
+    </type>
+
+    <type name="api_documentation">
+      <description>API reference documentation</description>
+      <sections>
+        <section>API overview</section>
+        <section>Authentication</section>
+        <section>Endpoints/Methods</section>
+        <section>Request/Response formats</section>
+        <section>Error codes</section>
+        <section>Rate limiting</section>
+        <section>Examples</section>
+      </sections>
+    </type>
+
+    <type name="user_guide">
+      <description>End-user documentation</description>
+      <sections>
+        <section>Introduction</section>
+        <section>Getting started</section>
+        <section>Feature guides</section>
+        <section>Troubleshooting</section>
+        <section>FAQ</section>
+      </sections>
+    </type>
+
+    <type name="tutorial">
+      <description>Step-by-step tutorials</description>
+      <sections>
+        <section>Prerequisites</section>
+        <section>Learning objectives</section>
+        <section>Step-by-step instructions</section>
+        <section>Code examples</section>
+        <section>Summary and next steps</section>
+      </sections>
+    </type>
+
+    <type name="changelog">
+      <description>Version history and release notes</description>
+      <sections>
+        <section>Version number and date</section>
+        <section>New features</section>
+        <section>Bug fixes</section>
+        <section>Breaking changes</section>
+        <section>Deprecations</section>
+      </sections>
+    </type>
+  </documentation_types>
+
+  <completion_criteria>
+    <criterion>Documentation is complete and covers all required topics</criterion>
+    <criterion>Content is accurate and up-to-date</criterion>
+    <criterion>Formatting is consistent throughout</criterion>
+    <criterion>Code examples are correct and tested</criterion>
+    <criterion>Links are valid and working</criterion>
+    <criterion>Language is clear and appropriate for the audience</criterion>
+    <criterion>Structure is logical and easy to navigate</criterion>
+  </completion_criteria>
+</documentation_workflow>
+]]>

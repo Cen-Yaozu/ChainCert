@@ -1,0 +1,641 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<documentation_patterns>
+  <overview>
+    Reusable templates and patterns for common documentation types.
+    Use these as starting points and customize as needed.
+  </overview>
+
+  <templates>
+    <template name="readme">
+      <description>Standard README template for projects</description>
+      <content><![CDATA[
+# Project Name
+
+Brief description of what this project does and who it's for.
+
+## Features
+
+- Feature 1
+- Feature 2
+- Feature 3
+
+## Tech Stack
+
+- Technology 1
+- Technology 2
+- Technology 3
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+- Prerequisite 1 (version X.X or higher)
+- Prerequisite 2
+
+## Installation
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/username/project.git
+   ```
+
+2. Navigate to the project directory
+   ```bash
+   cd project
+   ```
+
+3. Install dependencies
+   ```bash
+   npm install
+   ```
+
+## Configuration
+
+1. Copy the example configuration file
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update the configuration values in `.env`
+
+## Usage
+
+```bash
+npm start
+```
+
+### Examples
+
+```javascript
+// Example code here
+```
+
+## API Reference
+
+See [API Documentation](./docs/api.md) for detailed API reference.
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+- Author - [@username](https://github.com/username)
+- Project Link: [https://github.com/username/project](https://github.com/username/project)
+      ]]></content>
+    </template>
+
+    <template name="readme_chinese">
+      <description>中文 README 模板</description>
+      <content><![CDATA[
+# 项目名称
+
+简要描述这个项目的功能和目标用户。
+
+## 功能特性
+
+- 功能 1
+- 功能 2
+- 功能 3
+
+## 技术栈
+
+- 技术 1
+- 技术 2
+- 技术 3
+
+## 环境要求
+
+在开始之前，请确保已安装以下软件：
+- 依赖 1（版本 X.X 或更高）
+- 依赖 2
+
+## 安装步骤
+
+1. 克隆仓库
+   ```bash
+   git clone https://github.com/username/project.git
+   ```
+
+2. 进入项目目录
+   ```bash
+   cd project
+   ```
+
+3. 安装依赖
+   ```bash
+   npm install
+   ```
+
+## 配置说明
+
+1. 复制示例配置文件
+   ```bash
+   cp .env.example .env
+   ```
+
+2. 修改 `.env` 中的配置值
+
+## 使用方法
+
+```bash
+npm start
+```
+
+### 示例
+
+```javascript
+// 示例代码
+```
+
+## API 文档
+
+详细的 API 文档请参阅 [API 文档](./docs/api.md)。
+
+## 贡献指南
+
+欢迎贡献！请阅读 [贡献指南](CONTRIBUTING.md) 了解详情。
+
+## 许可证
+
+本项目采用 MIT 许可证 - 详情请参阅 [LICENSE](LICENSE) 文件。
+
+## 联系方式
+
+- 作者 - [@username](https://github.com/username)
+- 项目链接：[https://github.com/username/project](https://github.com/username/project)
+      ]]></content>
+    </template>
+
+    <template name="api_endpoint">
+      <description>API endpoint documentation template</description>
+      <content><![CDATA[
+## Endpoint Name
+
+Brief description of what this endpoint does.
+
+### Request
+
+```
+METHOD /api/v1/resource
+```
+
+#### Headers
+
+| Header | Type | Required | Description |
+|--------|------|----------|-------------|
+| Authorization | string | Yes | Bearer token |
+| Content-Type | string | Yes | application/json |
+
+#### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | Resource ID |
+
+#### Query Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| page | integer | No | 1 | Page number |
+| limit | integer | No | 10 | Items per page |
+
+#### Request Body
+
+```json
+{
+  "field1": "value1",
+  "field2": "value2"
+}
+```
+
+### Response
+
+#### Success Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123",
+    "field1": "value1"
+  }
+}
+```
+
+#### Error Responses
+
+| Status Code | Description |
+|-------------|-------------|
+| 400 | Bad Request - Invalid parameters |
+| 401 | Unauthorized - Invalid or missing token |
+| 404 | Not Found - Resource not found |
+| 500 | Internal Server Error |
+
+### Example
+
+```bash
+curl -X GET "https://api.example.com/api/v1/resource/123" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json"
+```
+      ]]></content>
+    </template>
+
+    <template name="changelog_entry">
+      <description>Changelog entry template</description>
+      <content><![CDATA[
+## [Version] - YYYY-MM-DD
+
+### Added
+- New feature description
+- Another new feature
+
+### Changed
+- Description of changed functionality
+- Another change
+
+### Deprecated
+- Feature that will be removed in future versions
+
+### Removed
+- Feature that was removed
+
+### Fixed
+- Bug fix description
+- Another bug fix
+
+### Security
+- Security improvement or fix
+      ]]></content>
+    </template>
+
+    <template name="tutorial">
+      <description>Tutorial documentation template</description>
+      <content><![CDATA[
+# Tutorial: [Title]
+
+## Overview
+
+Brief description of what you'll learn in this tutorial.
+
+## Prerequisites
+
+Before starting this tutorial, you should:
+- Have basic knowledge of X
+- Have Y installed
+- Be familiar with Z
+
+## What You'll Build
+
+Description of the final result with a screenshot or diagram if applicable.
+
+## Step 1: [First Step Title]
+
+Explanation of what this step accomplishes.
+
+```code
+// Code for step 1
+```
+
+**Expected Result:** Description of what should happen.
+
+## Step 2: [Second Step Title]
+
+Explanation of what this step accomplishes.
+
+```code
+// Code for step 2
+```
+
+**Expected Result:** Description of what should happen.
+
+## Step 3: [Third Step Title]
+
+Explanation of what this step accomplishes.
+
+```code
+// Code for step 3
+```
+
+**Expected Result:** Description of what should happen.
+
+## Complete Code
+
+Here's the complete code from this tutorial:
+
+```code
+// Complete code
+```
+
+## Summary
+
+In this tutorial, you learned how to:
+- Point 1
+- Point 2
+- Point 3
+
+## Next Steps
+
+- Link to related tutorial
+- Link to advanced topic
+- Link to documentation
+
+## Troubleshooting
+
+### Common Issue 1
+
+**Problem:** Description of the problem.
+
+**Solution:** How to fix it.
+
+### Common Issue 2
+
+**Problem:** Description of the problem.
+
+**Solution:** How to fix it.
+      ]]></content>
+    </template>
+
+    <template name="contributing">
+      <description>Contributing guide template</description>
+      <content><![CDATA[
+# Contributing to [Project Name]
+
+Thank you for your interest in contributing! This document provides guidelines and steps for contributing.
+
+## Code of Conduct
+
+Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## How Can I Contribute?
+
+### Reporting Bugs
+
+Before creating bug reports, please check existing issues. When creating a bug report, include:
+
+- **Clear title** describing the issue
+- **Steps to reproduce** the behavior
+- **Expected behavior** vs actual behavior
+- **Screenshots** if applicable
+- **Environment details** (OS, version, etc.)
+
+### Suggesting Features
+
+Feature suggestions are welcome! Please include:
+
+- **Clear description** of the feature
+- **Use case** explaining why it's needed
+- **Possible implementation** if you have ideas
+
+### Pull Requests
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`npm test`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## Development Setup
+
+1. Clone your fork
+   ```bash
+   git clone https://github.com/your-username/project.git
+   ```
+
+2. Install dependencies
+   ```bash
+   npm install
+   ```
+
+3. Run tests
+   ```bash
+   npm test
+   ```
+
+## Style Guidelines
+
+### Code Style
+
+- Follow the existing code style
+- Use meaningful variable names
+- Add comments for complex logic
+- Write tests for new features
+
+### Commit Messages
+
+- Use present tense ("Add feature" not "Added feature")
+- Use imperative mood ("Move cursor to..." not "Moves cursor to...")
+- Limit first line to 72 characters
+- Reference issues and PRs when relevant
+
+## Questions?
+
+Feel free to open an issue with your question or contact the maintainers.
+      ]]></content>
+    </template>
+
+    <template name="architecture_doc">
+      <description>Architecture documentation template</description>
+      <content><![CDATA[
+# Architecture Overview
+
+## System Architecture
+
+High-level description of the system architecture.
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Client    │────▶│   Server    │────▶│  Database   │
+└─────────────┘     └─────────────┘     └─────────────┘
+```
+
+## Components
+
+### Component 1
+
+**Purpose:** What this component does.
+
+**Responsibilities:**
+- Responsibility 1
+- Responsibility 2
+
+**Dependencies:**
+- Dependency 1
+- Dependency 2
+
+### Component 2
+
+**Purpose:** What this component does.
+
+**Responsibilities:**
+- Responsibility 1
+- Responsibility 2
+
+## Data Flow
+
+Description of how data flows through the system.
+
+1. Step 1 of data flow
+2. Step 2 of data flow
+3. Step 3 of data flow
+
+## Technology Choices
+
+| Component | Technology | Rationale |
+|-----------|------------|-----------|
+| Frontend | React | Component-based, large ecosystem |
+| Backend | Node.js | JavaScript consistency, async I/O |
+| Database | PostgreSQL | ACID compliance, JSON support |
+
+## Security Considerations
+
+- Security measure 1
+- Security measure 2
+- Security measure 3
+
+## Scalability
+
+Description of how the system scales.
+
+## Deployment
+
+Description of deployment architecture.
+      ]]></content>
+    </template>
+  </templates>
+
+  <patterns>
+    <pattern name="admonitions">
+      <description>Callout boxes for important information</description>
+      <examples>
+        <example type="note">
+          > **Note:** This is additional information that might be helpful.
+        </example>
+        <example type="warning">
+          > ⚠️ **Warning:** This action cannot be undone.
+        </example>
+        <example type="tip">
+          > 💡 **Tip:** You can use keyboard shortcuts for faster navigation.
+        </example>
+        <example type="important">
+          > ❗ **Important:** Make sure to backup your data before proceeding.
+        </example>
+      </examples>
+    </pattern>
+
+    <pattern name="code_with_output">
+      <description>Show code alongside its output</description>
+      <example>
+        **Input:**
+        ```javascript
+        console.log("Hello, World!");
+        ```
+
+        **Output:**
+        ```
+        Hello, World!
+        ```
+      </example>
+    </pattern>
+
+    <pattern name="comparison_table">
+      <description>Compare options or features</description>
+      <example>
+        | Feature | Option A | Option B | Option C |
+        |---------|----------|----------|----------|
+        | Price | Free | $10/mo | $50/mo |
+        | Storage | 1GB | 10GB | Unlimited |
+        | Support | Community | Email | 24/7 |
+      </example>
+    </pattern>
+
+    <pattern name="step_with_screenshot">
+      <description>Step-by-step with visual aids</description>
+      <example>
+        ### Step 1: Click the Settings button
+
+        Navigate to the top-right corner and click the gear icon.
+
+        ![Settings Button](./images/settings-button.png)
+      </example>
+    </pattern>
+
+    <pattern name="expandable_section">
+      <description>Collapsible content for optional details</description>
+      <example>
+        <details>
+        <summary>Click to expand advanced options</summary>
+
+        Advanced configuration options:
+        - Option 1: Description
+        - Option 2: Description
+
+        </details>
+      </example>
+    </pattern>
+
+    <pattern name="version_badge">
+      <description>Show version compatibility</description>
+      <example>
+        ![Version](https://img.shields.io/badge/version-1.0.0-blue)
+        ![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-green)
+      </example>
+    </pattern>
+  </patterns>
+
+  <snippets>
+    <snippet name="table_of_contents">
+      <description>Auto-generated table of contents marker</description>
+      <code>
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [API Reference](#api-reference)
+- [Contributing](#contributing)
+- [License](#license)
+      </code>
+    </snippet>
+
+    <snippet name="badge_row">
+      <description>Common badge row for README</description>
+      <code>
+[![Build Status](https://img.shields.io/github/actions/workflow/status/user/repo/ci.yml)](https://github.com/user/repo/actions)
+[![npm version](https://img.shields.io/npm/v/package-name)](https://www.npmjs.com/package/package-name)
+[![License](https://img.shields.io/github/license/user/repo)](LICENSE)
+[![Downloads](https://img.shields.io/npm/dm/package-name)](https://www.npmjs.com/package/package-name)
+      </code>
+    </snippet>
+
+    <snippet name="license_section">
+      <description>Standard license section</description>
+      <code>
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+```
+MIT License
+
+Copyright (c) [year] [fullname]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+...
+```
+      </code>
+    </snippet>
+  </snippets>
+</documentation_patterns>
+]]>

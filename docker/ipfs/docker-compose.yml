@@ -1,0 +1,32 @@
+services:
+  ipfs:
+    # 使用指定版本
+    image: ipfs/kubo:v0.24.0
+    container_name: ipfs-node
+    restart: unless-stopped
+    ports:
+      # IPFS Swarm - P2P 网络通信
+      - "4001:4001"
+      - "4001:4001/udp"
+      # IPFS API - 用于程序调用
+      - "5001:5001"
+      # IPFS Gateway - HTTP 网关访问（改为 8081 避免与后端冲突）
+      - "8081:8080"
+    volumes:
+      # 数据持久化
+      - ipfs_data:/data/ipfs
+      # 导出目录（可选）
+      - ./export:/export
+    environment:
+      # 允许跨域访问 API
+      - IPFS_PROFILE=server
+    healthcheck:
+      test: ["CMD-SHELL", "ipfs id || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  ipfs_data:
+    driver: local

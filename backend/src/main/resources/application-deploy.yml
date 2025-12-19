@@ -1,0 +1,48 @@
+# 合约部署专用配置
+# 使用方法: mvn spring-boot:run -Dspring-boot.run.profiles=deploy
+
+spring:
+  application:
+    name: certificate-system-deploy
+  
+  # 禁用 Web 服务器
+  main:
+    web-application-type: none
+  
+  # 数据库配置（最小化）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/certificate_system?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root123456
+  
+  # JPA 配置
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+
+# 区块链配置 - 必须启用
+blockchain:
+  enabled: true
+
+# FISCO BCOS 配置
+fisco:
+  nodes:
+    - 127.0.0.1:20200
+  group-id: 1
+  contract:
+    address: ""  # 留空，部署后会自动填充
+
+# IPFS 配置 - 部署时不需要
+ipfs:
+  enabled: false
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.blockchain.certificate: DEBUG
+    org.fisco.bcos: INFO
+  file:
+    name: logs/contract-deploy.log

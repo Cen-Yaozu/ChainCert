@@ -1,0 +1,21 @@
+cryptoMaterial:
+  certPath: "classpath:fisco"
+  disableSsl: false
+  useSMCrypto: false
+
+network:
+  peers:
+    - "127.0.0.1:20200"
+
+account:
+  keyStoreDir: "account"
+  accountAddress: ""
+  accountFileFormat: "pem"
+  password: ""
+  accountFilePath: ""
+  protocol: "ECDSA"
+
+threadPool:
+  channelProcessorThreadSize: 16
+  receiptProcessorThreadSize: 16
+  maxBlockingQueueSize: 10240

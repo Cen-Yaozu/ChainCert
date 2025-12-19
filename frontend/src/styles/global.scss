@@ -1,0 +1,560 @@
+@import './variables.scss';
+@import './mixins.scss';
+
+// 全局重置样式
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  font-size: $font-size-base;
+  line-height: 1.5;
+  color: $text-primary;
+  background-color: $background-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+// 链接样式
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color 0.3s;
+
+  &:hover {
+    color: darken($primary-color, 10%);
+  }
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+
+  &:hover {
+    background: #555;
+  }
+}
+
+// 通用工具类
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-primary {
+  color: $primary-color;
+}
+
+.text-success {
+  color: $success-color;
+}
+
+.text-warning {
+  color: $warning-color;
+}
+
+.text-danger {
+  color: $danger-color;
+}
+
+.text-info {
+  color: $info-color;
+}
+
+// 间距工具类
+@each $size in (xs, sm, md, lg, xl) {
+  $value: map-get(
+    (
+      xs: $spacing-xs,
+      sm: $spacing-sm,
+      md: $spacing-md,
+      lg: $spacing-lg,
+      xl: $spacing-xl
+    ),
+    $size
+  );
+
+  .m-#{$size} {
+    margin: $value;
+  }
+  .mt-#{$size} {
+    margin-top: $value;
+  }
+  .mr-#{$size} {
+    margin-right: $value;
+  }
+  .mb-#{$size} {
+    margin-bottom: $value;
+  }
+  .ml-#{$size} {
+    margin-left: $value;
+  }
+  .mx-#{$size} {
+    margin-left: $value;
+    margin-right: $value;
+  }
+  .my-#{$size} {
+    margin-top: $value;
+    margin-bottom: $value;
+  }
+
+  .p-#{$size} {
+    padding: $value;
+  }
+  .pt-#{$size} {
+    padding-top: $value;
+  }
+  .pr-#{$size} {
+    padding-right: $value;
+  }
+  .pb-#{$size} {
+    padding-bottom: $value;
+  }
+  .pl-#{$size} {
+    padding-left: $value;
+  }
+  .px-#{$size} {
+    padding-left: $value;
+    padding-right: $value;
+  }
+  .py-#{$size} {
+    padding-top: $value;
+    padding-bottom: $value;
+  }
+}
+
+// Flex 工具类
+.d-flex {
+  display: flex;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+.justify-start {
+  justify-content: flex-start;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+.align-start {
+  align-items: flex-start;
+}
+
+.align-end {
+  align-items: flex-end;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-baseline {
+  align-items: baseline;
+}
+
+.align-stretch {
+  align-items: stretch;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+// 显示/隐藏工具类
+.d-none {
+  display: none;
+}
+
+.d-block {
+  display: block;
+}
+
+.d-inline {
+  display: inline;
+}
+
+.d-inline-block {
+  display: inline-block;
+}
+
+// 响应式显示/隐藏
+@include respond-to(sm) {
+  .d-sm-none {
+    display: none;
+  }
+  .d-sm-block {
+    display: block;
+  }
+}
+
+@include respond-to(md) {
+  .d-md-none {
+    display: none;
+  }
+  .d-md-block {
+    display: block;
+  }
+}
+
+@include respond-to(lg) {
+  .d-lg-none {
+    display: none;
+  }
+  .d-lg-block {
+    display: block;
+  }
+}
+
+// 文本溢出
+.text-ellipsis {
+  @include text-ellipsis(1);
+}
+
+.text-ellipsis-2 {
+  @include text-ellipsis(2);
+}
+
+.text-ellipsis-3 {
+  @include text-ellipsis(3);
+}
+
+// 圆角
+.rounded {
+  border-radius: $border-radius-base;
+}
+
+.rounded-sm {
+  border-radius: $border-radius-sm;
+}
+
+.rounded-lg {
+  border-radius: $border-radius-lg;
+}
+
+.rounded-xl {
+  border-radius: $border-radius-xl;
+}
+
+.rounded-circle {
+  border-radius: 50%;
+}
+
+// 阴影
+.shadow {
+  box-shadow: $box-shadow-base;
+}
+
+.shadow-light {
+  box-shadow: $box-shadow-light;
+}
+
+.shadow-dark {
+  box-shadow: $box-shadow-dark;
+}
+
+.shadow-none {
+  box-shadow: none;
+}
+
+// 边框
+.border {
+  border: 1px solid $border-base;
+}
+
+.border-top {
+  border-top: 1px solid $border-base;
+}
+
+.border-right {
+  border-right: 1px solid $border-base;
+}
+
+.border-bottom {
+  border-bottom: 1px solid $border-base;
+}
+
+.border-left {
+  border-left: 1px solid $border-base;
+}
+
+.border-none {
+  border: none;
+}
+
+// 光标
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+// 用户选择
+.user-select-none {
+  user-select: none;
+}
+
+.user-select-all {
+  user-select: all;
+}
+
+// 溢出处理
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-scroll {
+  overflow: scroll;
+}
+
+// 位置
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.position-fixed {
+  position: fixed;
+}
+
+.position-sticky {
+  position: sticky;
+}
+
+// 宽度
+.w-100 {
+  width: 100%;
+}
+
+.w-auto {
+  width: auto;
+}
+
+// 高度
+.h-100 {
+  height: 100%;
+}
+
+.h-auto {
+  height: auto;
+}
+
+// 动画类
+.fade-in {
+  @include fade-in;
+}
+
+.slide-in-left {
+  @include slide-in(left);
+}
+
+.slide-in-right {
+  @include slide-in(right);
+}
+
+.slide-in-top {
+  @include slide-in(top);
+}
+
+.slide-in-bottom {
+  @include slide-in(bottom);
+}
+
+// 卡片样式
+.card {
+  @include card;
+}
+
+// 悬停效果
+.hover-lift {
+  @include hover-lift;
+}
+
+// Element Plus 样式覆盖
+.el-card {
+  margin-bottom: $spacing-md;
+
+  &.is-always-shadow,
+  &.is-hover-shadow:hover {
+    box-shadow: $box-shadow-light;
+  }
+}
+
+.el-table {
+  font-size: $font-size-base;
+
+  th {
+    background-color: $background-base;
+    color: $text-primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.el-button {
+  font-weight: $font-weight-normal;
+}
+
+.el-dialog {
+  border-radius: $border-radius-lg;
+}
+
+.el-message-box {
+  border-radius: $border-radius-lg;
+}
+
+// 响应式容器
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+
+  @include respond-above(sm) {
+    max-width: 720px;
+  }
+
+  @include respond-above(md) {
+    max-width: 960px;
+  }
+
+  @include respond-above(lg) {
+    max-width: 1140px;
+  }
+
+  @include respond-above(xl) {
+    max-width: 1320px;
+  }
+}
+
+// 页面容器
+.page-container {
+  padding: $spacing-lg;
+
+  @include respond-to(sm) {
+    padding: $spacing-md;
+  }
+}
+
+// 卡片头部
+.card-header {
+  @include flex-between;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+}
+
+// 工具栏
+.toolbar {
+  margin-bottom: $spacing-md;
+}
+
+// 搜索表单
+.search-form {
+  margin-bottom: $spacing-md;
+}
+
+// 加载状态
+.loading {
+  @include flex-center;
+  min-height: 200px;
+}
+
+// 空状态
+.empty-state {
+  @include flex-center;
+  flex-direction: column;
+  min-height: 300px;
+  color: $text-secondary;
+
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: $spacing-md;
+    opacity: 0.5;
+  }
+
+  .empty-text {
+    font-size: $font-size-lg;
+  }
+}
+
+// 错误状态
+.error-state {
+  @include flex-center;
+  flex-direction: column;
+  min-height: 300px;
+  color: $danger-color;
+
+  .error-icon {
+    font-size: 64px;
+    margin-bottom: $spacing-md;
+  }
+
+  .error-text {
+    font-size: $font-size-lg;
+  }
+}
