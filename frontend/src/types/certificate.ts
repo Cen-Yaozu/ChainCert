@@ -12,27 +12,30 @@ export enum CertificateStatus {
  * 证书信息
  */
 export interface Certificate {
-  id: number
+  id: string
   certificateNumber: string
   studentId: string
   studentName: string
+  collegeId?: string
   collegeName: string
+  majorId?: string
   majorName: string
   certificateType: string
   issueDate: string
-  pdfUrl: string
-  ipfsCid: string
-  blockchainTxHash: string
+  pdfUrl?: string
+  ipfsCid?: string
+  blockchainTxHash?: string
   status: CertificateStatus
   statusName: string
   createdAt: string
+  updatedAt?: string
 }
 
 /**
  * 证书列表项
  */
 export interface CertificateListItem {
-  id: number
+  id: string
   certificateNumber: string
   studentId: string
   studentName: string

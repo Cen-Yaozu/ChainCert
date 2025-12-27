@@ -524,10 +524,11 @@ const loadMajors = async () => {
 }
 
 // 加载学院管理员列表
+// 注意：后端使用 COLLEGE_TEACHER 角色名，不是 COLLEGE_ADMIN
 const loadCollegeAdmins = async () => {
   try {
     const response = await userApi.getUserList({
-      role: 'COLLEGE_ADMIN',
+      role: 'COLLEGE_TEACHER',
       page: 1,
       size: 1000
     })

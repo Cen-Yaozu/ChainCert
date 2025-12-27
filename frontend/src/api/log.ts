@@ -7,39 +7,30 @@ import type { SystemLogVO, PageResult } from '@/types'
 export const logApi = {
   /**
    * 分页查询系统日志
+   * 后端参数: keyword, module, userId, startTime, endTime
    */
   getLogList(params: {
     page: number
     size: number
-    username?: string
-    action?: string
+    keyword?: string
     module?: string
-    startDate?: string
-    endDate?: string
+    userId?: string
+    startTime?: string
+    endTime?: string
   }) {
     return request.get<PageResult<SystemLogVO>>('/admin/logs', { params })
   },
 
   /**
    * 清理过期日志
+   * 后端路径是 /admin/logs/clean，参数是 retentionDays
    */
-  cleanLogs(days: number) {
-    return request.delete<{ deletedCount: number }>('/admin/logs/clean', { params: { days } })
+  cleanLogs(retentionDays: number) {
+    return request.delete<number>('/admin/logs/clean', {
+      params: { retentionDays }
+    })
   },
 
-  /**
-   * 导出日志
-   */
-  exportLogs(params: {
-    username?: string
-    action?: string
-    module?: string
-    startDate?: string
-    endDate?: string
-  }) {
-    return request.get('/admin/logs/export', {
-      params,
-      responseType: 'blob'
-    })
-  }
+  // 注意: 后端没有日志导出接口
+  // exportLogs 方法已移除
 }

@@ -21,15 +21,17 @@ export const authApi = {
 
   /**
    * 刷新 Token
+   * 后端返回 {token: string}，不是完整的 LoginResponse
    */
-  refreshToken(data: RefreshTokenRequest): Promise<LoginResponse> {
+  refreshToken(data: RefreshTokenRequest): Promise<{ token: string }> {
     return request.post('/auth/refresh', data)
   },
 
   /**
    * 登出
+   * 后端不需要 refreshToken 参数
    */
-  logout(refreshToken: string): Promise<void> {
-    return request.post('/auth/logout', { refreshToken })
+  logout(): Promise<void> {
+    return request.post('/auth/logout')
   },
 }

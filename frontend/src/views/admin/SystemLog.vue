@@ -68,12 +68,15 @@
       >
         刷新
       </el-button>
+      <!-- 注意：后端暂不支持导出日志功能 -->
+      <!--
       <el-button
         :icon="Download"
         @click="handleExport"
       >
         导出日志
       </el-button>
+      -->
     </el-card>
 
     <!-- 日志列表 -->
@@ -222,7 +225,7 @@ import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Refresh,
-  Download,
+  // Download, // 后端暂不支持导出功能
   View
 } from '@element-plus/icons-vue'
 import SearchForm from '@/components/SearchForm.vue'
@@ -309,22 +312,8 @@ const handleView = (row: SystemLogVO) => {
   detailVisible.value = true
 }
 
-// 导出日志
-const handleExport = async () => {
-  try {
-    const response = await logApi.exportLogs(searchForm)
-    const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' })
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `系统日志_${formatDateTime(new Date())}.xlsx`
-    link.click()
-    window.URL.revokeObjectURL(url)
-    ElMessage.success('导出成功')
-  } catch (error) {
-    ElMessage.error('导出失败')
-  }
-}
+// 注意：后端暂不支持导出日志功能，已移除 handleExport 方法
+// 如果后端添加了导出接口，可以恢复此功能
 
 // 获取操作类型文本
 const getActionText = (action: string) => {

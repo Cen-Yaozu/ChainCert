@@ -1,27 +1,35 @@
 /**
  * 用户角色枚举
+ * 注意：后端使用 COLLEGE_TEACHER/SCHOOL_TEACHER，不是 COLLEGE_ADMIN/SCHOOL_ADMIN
  */
 export enum UserRole {
   STUDENT = 'STUDENT',
-  COLLEGE_ADMIN = 'COLLEGE_ADMIN',
-  SCHOOL_ADMIN = 'SCHOOL_ADMIN',
+  COLLEGE_TEACHER = 'COLLEGE_TEACHER',
+  SCHOOL_TEACHER = 'SCHOOL_TEACHER',
   SYSTEM_ADMIN = 'SYSTEM_ADMIN',
 }
+
+/**
+ * 兼容旧代码的别名
+ * @deprecated 请使用 COLLEGE_TEACHER 和 SCHOOL_TEACHER
+ */
+export const COLLEGE_ADMIN = UserRole.COLLEGE_TEACHER
+export const SCHOOL_ADMIN = UserRole.SCHOOL_TEACHER
 
 /**
  * 用户信息接口
  */
 export interface User {
-  id: number
+  id: string
   username: string
   realName: string
   email: string
   phone?: string
-  role: UserRole
+  role: UserRole | string
   studentId?: string
-  collegeId?: number
+  collegeId?: string
   collegeName?: string
-  majorId?: number
+  majorId?: string
   majorName?: string
   enabled: boolean
   createdAt: string
@@ -66,10 +74,10 @@ export interface UserRequest {
   realName: string
   email: string
   phone?: string
-  role: UserRole
+  role: UserRole | string
   studentId?: string
-  collegeId?: number
-  majorId?: number
+  collegeId?: string
+  majorId?: string
   enabled?: boolean
 }
 
@@ -85,12 +93,12 @@ export interface PasswordChangeRequest {
  * 用户列表项
  */
 export interface UserListItem {
-  id: number
+  id: string
   username: string
   realName: string
   email: string
   phone?: string
-  role: UserRole
+  role: UserRole | string
   roleName: string
   studentId?: string
   collegeName?: string
@@ -103,16 +111,16 @@ export interface UserListItem {
  * 用户列表VO（后端返回格式）
  */
 export interface UserListVO {
-  id: number
+  id: string
   username: string
   realName: string
   email: string
   phone?: string
   role: string
   studentId?: string
-  collegeId?: number
+  collegeId?: string
   collegeName?: string
-  majorId?: number
+  majorId?: string
   majorName?: string
   enabled: boolean
   createdAt: string
@@ -122,16 +130,16 @@ export interface UserListVO {
  * 用户响应
  */
 export interface UserResponse {
-  id: number
+  id: string
   username: string
   realName: string
   email: string
   phone?: string
   role: string
   studentId?: string
-  collegeId?: number
+  collegeId?: string
   collegeName?: string
-  majorId?: number
+  majorId?: string
   majorName?: string
   enabled: boolean
   createdAt: string

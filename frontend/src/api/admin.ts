@@ -11,8 +11,9 @@ import type {
 
 /**
  * 学院管理相关 API
+ * 注意: 推荐使用 college.ts 中的 collegeApi
  */
-export const collegeApi = {
+export const adminCollegeApi = {
   /**
    * 创建学院
    */
@@ -23,14 +24,14 @@ export const collegeApi = {
   /**
    * 更新学院
    */
-  update(id: number, data: Partial<College>): Promise<College> {
+  update(id: string, data: Partial<College>): Promise<College> {
     return request.put(`/admin/colleges/${id}`, data)
   },
 
   /**
    * 删除学院
    */
-  delete(id: number): Promise<void> {
+  delete(id: string): Promise<void> {
     return request.delete(`/admin/colleges/${id}`)
   },
 
@@ -51,22 +52,26 @@ export const collegeApi = {
   /**
    * 获取学院详情
    */
-  getDetail(id: number): Promise<College> {
+  getDetail(id: string): Promise<College> {
     return request.get(`/admin/colleges/${id}`)
   },
 
   /**
    * 分配审批人
+   * 后端使用 query param 传递单个 approverId
    */
-  assignApprovers(id: number, approverIds: number[]): Promise<void> {
-    return request.put(`/admin/colleges/${id}/approvers`, { approverIds })
+  assignApprover(id: string, approverId: string): Promise<void> {
+    return request.put(`/admin/colleges/${id}/approver`, null, {
+      params: { approverId }
+    })
   },
 }
 
 /**
  * 专业管理相关 API
+ * 注意: 推荐使用 college.ts 中的 collegeApi
  */
-export const majorApi = {
+export const adminMajorApi = {
   /**
    * 创建专业
    */
@@ -77,43 +82,52 @@ export const majorApi = {
   /**
    * 更新专业
    */
-  update(id: number, data: Partial<Major>): Promise<Major> {
+  update(id: string, data: Partial<Major>): Promise<Major> {
     return request.put(`/admin/majors/${id}`, data)
   },
 
   /**
    * 删除专业
    */
-  delete(id: number): Promise<void> {
+  delete(id: string): Promise<void> {
     return request.delete(`/admin/majors/${id}`)
   },
 
   /**
    * 获取专业列表
    */
-  getList(params?: PageQuery & { collegeId?: number; keyword?: string }): Promise<PageResponse<Major>> {
+  getList(params?: PageQuery & { collegeId?: string; keyword?: string }): Promise<PageResponse<Major>> {
     return request.get('/admin/majors', { params })
   },
 
   /**
    * 获取学院下的所有专业
+   * 后端路径是 /by-college/
    */
-  getByCollege(collegeId: number): Promise<Major[]> {
-    return request.get(`/admin/majors/college/${collegeId}`)
+  getByCollege(collegeId: string): Promise<Major[]> {
+    return request.get(`/admin/majors/by-college/${collegeId}`)
+  },
+
+  /**
+   * 获取所有专业（不分页）
+   */
+  getAll(): Promise<Major[]> {
+    return request.get('/admin/majors/all')
   },
 
   /**
    * 获取专业详情
    */
-  getDetail(id: number): Promise<Major> {
+  getDetail(id: string): Promise<Major> {
     return request.get(`/admin/majors/${id}`)
   },
 }
 
 /**
  * 证书模板管理相关 API
+ * 注意: 推荐使用 template.ts 中的 templateApi
  */
-export const templateApi = {
+export const adminTemplateApi = {
   /**
    * 创建模板
    */
@@ -124,74 +138,64 @@ export const templateApi = {
   /**
    * 更新模板
    */
-  update(id: number, data: Partial<CertificateTemplate>): Promise<CertificateTemplate> {
+  update(id: string, data: Partial<CertificateTemplate>): Promise<CertificateTemplate> {
     return request.put(`/admin/templates/${id}`, data)
   },
 
   /**
    * 删除模板
    */
-  delete(id: number): Promise<void> {
+  delete(id: string): Promise<void> {
     return request.delete(`/admin/templates/${id}`)
   },
 
   /**
    * 获取模板列表
    */
-  getList(params?: PageQuery & { type?: string; keyword?: string }): Promise<PageResponse<CertificateTemplate>> {
+  getList(params?: PageQuery & { type?: string; keyword?: string; enabled?: boolean }): Promise<PageResponse<CertificateTemplate>> {
     return request.get('/admin/templates', { params })
   },
 
   /**
    * 获取模板详情
    */
-  getDetail(id: number): Promise<CertificateTemplate> {
+  getDetail(id: string): Promise<CertificateTemplate> {
     return request.get(`/admin/templates/${id}`)
   },
 
   /**
-   * 启用模板
+   * 启用/禁用模板
+   * 后端使用 query param 传递 enabled
    */
-  enable(id: number): Promise<void> {
-    return request.put(`/admin/templates/${id}/enable`)
+  toggleStatus(id: string, enabled: boolean): Promise<void> {
+    return request.put(`/admin/templates/${id}/status`, null, {
+      params: { enabled }
+    })
   },
 
-  /**
-   * 禁用模板
-   */
-  disable(id: number): Promise<void> {
-    return request.put(`/admin/templates/${id}/disable`)
-  },
-
-  /**
-   * 设置默认模板
-   */
-  setDefault(id: number): Promise<void> {
-    return request.put(`/admin/templates/${id}/set-default`)
-  },
-
-  /**
-   * 按类型获取模板
-   */
-  getByType(type: string): Promise<CertificateTemplate[]> {
-    return request.get(`/admin/templates/type/${type}`)
-  },
+  // 注意: 后端没有以下接口:
+  // - enable(id) - 使用 toggleStatus(id, true) 替代
+  // - disable(id) - 使用 toggleStatus(id, false) 替代
+  // - setDefault(id) - 后端没有此功能
+  // - getByType(type) - 后端没有此功能
 }
 
 /**
  * 系统日志相关 API
+ * 注意: 推荐使用 log.ts 中的 logApi
  */
-export const logApi = {
+export const adminLogApi = {
   /**
    * 获取系统日志列表
+   * 后端参数: keyword, module, userId, startTime, endTime
    */
   getList(
     params?: PageQuery & {
+      keyword?: string
       module?: string
-      operation?: string
-      username?: string
-      startDate?: string
-      endDate?: string
+      userId?: string
+      startTime?: string
+      endTime?: string
     }
   ): Promise<PageResponse<SystemLog>> {
     return request.get('/admin/logs', { params })
@@ -199,10 +203,13 @@ export const logApi = {
 
   /**
    * 清理过期日志
+   * 后端路径是 /admin/logs/clean，参数是 retentionDays
    */
-  cleanup(days: number): Promise<{ deletedCount: number }> {
-    return request.delete('/admin/logs/cleanup', { params: { days } })
+  cleanup(retentionDays: number): Promise<number> {
+    return request.delete('/admin/logs/clean', { params: { retentionDays } })
   },
+
+  // 注意: 后端没有日志导出接口
 }
 
 /**
@@ -218,15 +225,17 @@ export const statisticsApi = {
 
   /**
    * 获取学院统计数据
+   * 后端路径是 /admin/statistics/college/{collegeId}
    */
-  getCollegeStats(collegeId?: number): Promise<Statistics> {
-    return request.get('/admin/statistics/college', { params: { collegeId } })
+  getCollegeStats(collegeId: string): Promise<Statistics> {
+    return request.get(`/admin/statistics/college/${collegeId}`)
   },
 
   /**
    * 获取时间范围统计
+   * 后端参数是 startTime/endTime，不是 startDate/endDate
    */
-  getTimeRangeStats(startDate: string, endDate: string): Promise<Statistics> {
-    return request.get('/admin/statistics/time-range', { params: { startDate, endDate } })
+  getTimeRangeStats(startTime: string, endTime: string): Promise<Statistics> {
+    return request.get('/admin/statistics/date-range', { params: { startTime, endTime } })
   },
 }

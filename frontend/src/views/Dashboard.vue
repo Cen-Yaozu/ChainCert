@@ -92,14 +92,15 @@ const greeting = computed(() => {
 })
 
 // 获取角色文本
-const getRoleText = (role?: UserRole) => {
-  const roleMap: Record<UserRole, string> = {
+// 注意：后端使用 COLLEGE_TEACHER/SCHOOL_TEACHER，不是 COLLEGE_ADMIN/SCHOOL_ADMIN
+const getRoleText = (role?: UserRole | string) => {
+  const roleMap: Record<string, string> = {
     [UserRole.STUDENT]: '学生',
-    [UserRole.COLLEGE_ADMIN]: '学院管理员',
-    [UserRole.SCHOOL_ADMIN]: '学校管理员',
+    [UserRole.COLLEGE_TEACHER]: '学院教师',
+    [UserRole.SCHOOL_TEACHER]: '学校教师',
     [UserRole.SYSTEM_ADMIN]: '系统管理员',
   }
-  return role ? roleMap[role] : '未知'
+  return role ? (roleMap[role] || role) : '未知'
 }
 
 // 快捷操作
@@ -126,8 +127,8 @@ const quickActions = computed(() => {
   }
 
   if (
-    authStore.user?.role === UserRole.COLLEGE_ADMIN ||
-    authStore.user?.role === UserRole.SCHOOL_ADMIN
+    authStore.user?.role === UserRole.COLLEGE_TEACHER ||
+    authStore.user?.role === UserRole.SCHOOL_TEACHER
   ) {
     actions.push(
       {

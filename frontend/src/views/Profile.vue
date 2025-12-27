@@ -415,11 +415,12 @@ const handleResetPasswordForm = () => {
 }
 
 // 获取角色文本
+// 注意：后端使用 COLLEGE_TEACHER/SCHOOL_TEACHER，不是 COLLEGE_ADMIN/SCHOOL_ADMIN
 const getRoleText = (role: string) => {
   const roleMap: Record<string, string> = {
     STUDENT: '学生',
-    COLLEGE_ADMIN: '学院管理员',
-    SCHOOL_ADMIN: '学校管理员',
+    COLLEGE_TEACHER: '学院教师',
+    SCHOOL_TEACHER: '学校教师',
     SYSTEM_ADMIN: '系统管理员'
   }
   return roleMap[role] || role
@@ -429,8 +430,8 @@ const getRoleText = (role: string) => {
 const getRoleType = (role: string) => {
   const typeMap: Record<string, any> = {
     STUDENT: '',
-    COLLEGE_ADMIN: 'success',
-    SCHOOL_ADMIN: 'warning',
+    COLLEGE_TEACHER: 'success',
+    SCHOOL_TEACHER: 'warning',
     SYSTEM_ADMIN: 'danger'
   }
   return typeMap[role] || ''

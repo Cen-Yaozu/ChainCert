@@ -15,21 +15,21 @@ export const collegeApi = {
   /**
    * 更新学院
    */
-  updateCollege(id: number, data: CollegeRequest) {
+  updateCollege(id: string, data: CollegeRequest) {
     return request.put<CollegeResponse>(`/admin/colleges/${id}`, data)
   },
 
   /**
    * 删除学院
    */
-  deleteCollege(id: number) {
+  deleteCollege(id: string) {
     return request.delete<void>(`/admin/colleges/${id}`)
   },
 
   /**
    * 获取学院详情
    */
-  getCollegeDetail(id: number) {
+  getCollegeDetail(id: string) {
     return request.get<CollegeResponse>(`/admin/colleges/${id}`)
   },
 
@@ -49,9 +49,12 @@ export const collegeApi = {
 
   /**
    * 分配审批人
+   * 后端使用 query param 传递 approverId
    */
-  assignAdmin(collegeId: number, approverId: number) {
-    return request.put<void>(`/admin/colleges/${collegeId}/approver`, { approverId })
+  assignApprover(collegeId: string, approverId: string) {
+    return request.put<void>(`/admin/colleges/${collegeId}/approver`, null, {
+      params: { approverId }
+    })
   },
 
   /**
@@ -64,35 +67,36 @@ export const collegeApi = {
   /**
    * 更新专业
    */
-  updateMajor(id: number, data: MajorRequest) {
+  updateMajor(id: string, data: MajorRequest) {
     return request.put<MajorResponse>(`/admin/majors/${id}`, data)
   },
 
   /**
    * 删除专业
    */
-  deleteMajor(id: number) {
+  deleteMajor(id: string) {
     return request.delete<void>(`/admin/majors/${id}`)
   },
 
   /**
    * 获取专业详情
    */
-  getMajorDetail(id: number) {
+  getMajorDetail(id: string) {
     return request.get<MajorResponse>(`/admin/majors/${id}`)
   },
 
   /**
    * 分页查询专业列表
    */
-  getMajorList(params: { page: number; size: number; collegeId?: number; keyword?: string }) {
+  getMajorList(params: { page: number; size: number; collegeId?: string; keyword?: string }) {
     return request.get<PageResult<MajorResponse>>('/admin/majors', { params })
   },
 
   /**
    * 获取学院的所有专业
+   * 后端路径是 /by-college/
    */
-  getMajorsByCollege(collegeId: number) {
+  getMajorsByCollege(collegeId: string) {
     return request.get<MajorResponse[]>(`/admin/majors/by-college/${collegeId}`)
   },
 

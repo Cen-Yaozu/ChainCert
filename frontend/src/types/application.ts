@@ -25,14 +25,19 @@ export interface ProofDocument {
  * 申请信息
  */
 export interface Application {
-  id: number
+  id: string
   studentId: string
   studentName: string
+  collegeId?: string
   collegeName: string
+  majorId?: string
   majorName: string
-  certificateType: string
-  reason: string
-  proofDocuments: ProofDocument[]
+  title: string
+  description?: string
+  certificateType?: string
+  reason?: string
+  proofFiles?: string[]
+  proofDocuments?: ProofDocument[]
   status: ApplicationStatus
   statusName: string
   createdAt: string
@@ -41,23 +46,28 @@ export interface Application {
 
 /**
  * 申请创建请求
+ * 后端 ApplicationController.create 接收的字段
  */
 export interface ApplicationRequest {
+  title: string
   certificateType: string
-  reason: string
-  proofDocuments: File[]
+  collegeId: string
+  majorId?: string
+  description?: string
+  proofFiles?: string[]
 }
 
 /**
  * 申请列表项
  */
 export interface ApplicationListItem {
-  id: number
+  id: string
   studentId: string
   studentName: string
   collegeName: string
   majorName: string
-  certificateType: string
+  title: string
+  certificateType?: string
   status: ApplicationStatus
   statusName: string
   createdAt: string

@@ -50,11 +50,11 @@ export interface Option {
  * 学院信息
  */
 export interface College {
-  id: number
+  id: string
   name: string
   code: string
   description?: string
-  approverIds: number[]
+  approverIds?: string[]
   enabled: boolean
   createdAt: string
 }
@@ -63,7 +63,7 @@ export interface College {
  * 学院请求
  */
 export interface CollegeRequest {
-  id?: number
+  id?: string
   name: string
   code: string
   description?: string
@@ -73,11 +73,11 @@ export interface CollegeRequest {
  * 学院响应
  */
 export interface CollegeResponse {
-  id: number
+  id: string
   name: string
   code: string
   description?: string
-  adminId?: number
+  adminId?: string
   adminName?: string
   createdAt: string
   updatedAt?: string
@@ -87,8 +87,8 @@ export interface CollegeResponse {
  * 专业信息
  */
 export interface Major {
-  id: number
-  collegeId: number
+  id: string
+  collegeId: string
   collegeName: string
   name: string
   code: string
@@ -101,8 +101,8 @@ export interface Major {
  * 专业请求
  */
 export interface MajorRequest {
-  id?: number
-  collegeId?: number
+  id?: string
+  collegeId?: string
   name: string
   code: string
   description?: string
@@ -112,8 +112,8 @@ export interface MajorRequest {
  * 专业响应
  */
 export interface MajorResponse {
-  id: number
-  collegeId: number
+  id: string
+  collegeId: string
   collegeName?: string
   name: string
   code: string
@@ -126,7 +126,7 @@ export interface MajorResponse {
  * 证书模板
  */
 export interface CertificateTemplate {
-  id: number
+  id: string
   name: string
   type: string
   description?: string
@@ -140,7 +140,7 @@ export interface CertificateTemplate {
  * 模板请求
  */
 export interface TemplateRequest {
-  id?: number
+  id?: string
   name: string
   type: string
   description?: string
@@ -153,7 +153,7 @@ export interface TemplateRequest {
  * 模板响应
  */
 export interface TemplateResponse {
-  id: number
+  id: string
   name: string
   type: string
   description?: string
@@ -168,8 +168,8 @@ export interface TemplateResponse {
  * 系统日志
  */
 export interface SystemLog {
-  id: number
-  userId: number
+  id: string
+  userId: string
   username: string
   operation: string
   module: string
@@ -185,7 +185,7 @@ export interface SystemLog {
  * 系统日志VO
  */
 export interface SystemLogVO {
-  id: number
+  id: string
   username: string
   action: string
   module: string

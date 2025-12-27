@@ -20,9 +20,9 @@ export interface ApprovalRequest {
  * 审批记录
  */
 export interface Approval {
-  id: number
-  applicationId: number
-  approverId: number
+  id: string
+  applicationId: string
+  approverId: string
   approverName: string
   approverRole: string
   decision: ApprovalDecision
@@ -32,13 +32,29 @@ export interface Approval {
 }
 
 /**
+ * 审批响应（后端返回格式）
+ */
+export interface ApprovalResponse {
+  id: string
+  applicationId: string
+  approverId: string
+  approverName: string
+  approverRole: string
+  decision: string
+  comment?: string
+  digitalSignature?: string
+  createdAt: string
+  updatedAt?: string
+}
+
+/**
  * 审批历史项
  */
 export interface ApprovalHistoryItem {
-  id: number
+  id: string
   approverName: string
   approverRole: string
-  decision: ApprovalDecision
+  decision: ApprovalDecision | string
   decisionName: string
   comment?: string
   createdAt: string
@@ -48,13 +64,15 @@ export interface ApprovalHistoryItem {
  * 待审批申请
  */
 export interface PendingApproval {
-  id: number
+  id: string
   studentId: string
   studentName: string
   collegeName: string
   majorName: string
-  certificateType: string
-  reason: string
+  title?: string
+  certificateType?: string
+  reason?: string
+  description?: string
   status: ApplicationStatus
   statusName: string
   createdAt: string

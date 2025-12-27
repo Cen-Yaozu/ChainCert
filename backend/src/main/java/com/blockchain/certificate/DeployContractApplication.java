@@ -1,6 +1,6 @@
 package com.blockchain.certificate;
 
-import com.blockchain.certificate.blockchain.ContractDeployer;
+import com.blockchain.certificate.infrastructure.blockchain.ContractDeployer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

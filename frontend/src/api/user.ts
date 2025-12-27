@@ -5,7 +5,6 @@ import type {
   UserListVO,
   UserResponse,
   PasswordChangeRequest,
-  PasswordResetRequest,
   PageResult
 } from '@/types'
 
@@ -23,27 +22,27 @@ export const userApi = {
   /**
    * 更新用户
    */
-  updateUser(id: number, data: UserRequest) {
+  updateUser(id: string, data: UserRequest) {
     return request.put<UserResponse>(`/users/${id}`, data)
   },
 
   /**
    * 删除用户
    */
-  deleteUser(id: number) {
+  deleteUser(id: string) {
     return request.delete<void>(`/users/${id}`)
   },
 
   /**
    * 获取用户列表
+   * 后端使用 keyword 参数进行搜索，而不是 username/realName
    */
   getUserList(params: {
     page: number
     size: number
-    username?: string
-    realName?: string
+    keyword?: string
     role?: string
-    enabled?: boolean
+    collegeId?: string
   }) {
     return request.get<PageResult<UserListVO>>('/users', { params })
   },
@@ -51,7 +50,7 @@ export const userApi = {
   /**
    * 获取用户详情
    */
-  getUserDetail(id: number) {
+  getUserDetail(id: string) {
     return request.get<UserResponse>(`/users/${id}`)
   },
 
@@ -64,33 +63,30 @@ export const userApi = {
 
   /**
    * 重置密码
+   * 后端使用 query param 传递 newPassword
    */
-  resetPassword(id: number, data: PasswordResetRequest) {
-    return request.put<void>(`/users/${id}/reset-password`, data)
+  resetPassword(id: string, newPassword: string) {
+    return request.put<void>(`/users/${id}/reset-password`, null, {
+      params: { newPassword }
+    })
   },
 
   /**
    * 切换用户状态
+   * 后端需要 enabled 参数
    */
-  toggleUserStatus(id: number) {
-    return request.put<void>(`/users/${id}/status`)
+  toggleUserStatus(id: string, enabled: boolean) {
+    return request.put<void>(`/users/${id}/status`, null, {
+      params: { enabled }
+    })
   },
 
   /**
    * 批量导入用户
+   * 后端接收 JSON 数组，不是 FormData
    */
-  batchImport(file: File) {
-    const formData = new FormData()
-    formData.append('file', file)
-    return request.post<{ successCount: number; failCount: number; errors: string[] }>(
-      '/users/batch-import',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }
-    )
+  batchImport(users: UserRequest[]) {
+    return request.post<void>('/users/batch-import', users)
   },
 }
 
@@ -120,11 +116,12 @@ export const profileApi = {
   },
 
   /**
-   * 上传头像
+   * 更新头像
+   * 后端使用 PUT + query param，不是 POST + FormData
    */
-  uploadAvatar(file: File): Promise<{ avatarUrl: string }> {
-    const formData = new FormData()
-    formData.append('avatar', file)
-    return request.upload('/profile/avatar', formData)
+  updateAvatar(avatarUrl: string): Promise<void> {
+    return request.put('/profile/avatar', null, {
+      params: { avatarUrl }
+    })
   },
 }
