@@ -15,7 +15,7 @@
     <groupId>com.blockchain</groupId>
     <artifactId>certificate-system</artifactId>
     <version>1.0.0</version>
-    <name>Blockchain Certificate System</name>
+    <name>ChainCert</name>
     <description>区块链证书存证系统</description>
 
     <properties>
