@@ -21,13 +21,13 @@ public class Major {
     /**
      * 专业ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     
     /**
      * 学院ID
      */
-    private String collegeId;
+    private Long collegeId;
     
     /**
      * 专业名称

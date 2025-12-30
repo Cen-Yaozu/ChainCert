@@ -18,6 +18,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: false, title: '登录' },
   },
   {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/auth/Register.vue'),
+    meta: { requiresAuth: false, title: '注册' },
+  },
+  {
     path: '/verify',
     name: 'Verify',
     component: () => import('@/views/Verify.vue'),
@@ -103,6 +109,18 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '模板管理', icon: 'Tickets' },
           },
           {
+            path: 'approval-flow',
+            name: 'ApprovalFlowConfig',
+            component: () => import('@/views/admin/ApprovalFlowConfig.vue'),
+            meta: { title: '审批流配置', icon: 'SetUp' },
+          },
+          {
+            path: 'blockchain',
+            name: 'BlockchainConfig',
+            component: () => import('@/views/admin/BlockchainConfig.vue'),
+            meta: { title: '区块链配置', icon: 'Connection' },
+          },
+          {
             path: 'logs',
             name: 'SystemLog',
             component: () => import('@/views/admin/SystemLog.vue'),
@@ -113,6 +131,12 @@ const routes: RouteRecordRaw[] = [
             name: 'CertificateManagement',
             component: () => import('@/views/admin/CertificateManagement.vue'),
             meta: { title: '证书管理', icon: 'Medal' },
+          },
+          {
+            path: 'data-screen',
+            name: 'DataScreen',
+            component: () => import('@/views/admin/DataScreen.vue'),
+            meta: { title: '可视化大屏', icon: 'DataAnalysis' },
           },
         ],
       },
@@ -153,14 +177,15 @@ router.beforeEach((to, from, next) => {
   // 检查角色权限
   if (to.meta.roles && authStore.user) {
     const roles = to.meta.roles as UserRole[]
-    if (!roles.includes(authStore.user.role)) {
+    const userRole = authStore.user.role as UserRole
+    if (!roles.includes(userRole)) {
       next({ name: 'Dashboard' })
       return
     }
   }
 
-  // 已登录用户访问登录页，重定向到首页
-  if (to.name === 'Login' && authStore.isAuthenticated) {
+  // 已登录用户访问登录页或注册页，重定向到首页
+  if ((to.name === 'Login' || to.name === 'Register') && authStore.isAuthenticated) {
     next({ name: 'Dashboard' })
     return
   }

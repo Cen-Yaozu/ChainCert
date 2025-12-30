@@ -24,13 +24,13 @@ public class Application {
     /**
      * 申请ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     
     /**
      * 申请人ID
      */
-    private String applicantId;
+    private Long applicantId;
     
     /**
      * 申请标题
@@ -50,12 +50,12 @@ public class Application {
     /**
      * 学院ID
      */
-    private String collegeId;
+    private Long collegeId;
     
     /**
      * 专业ID
      */
-    private String majorId;
+    private Long majorId;
     
     /**
      * 证明文件列表（JSON格式）

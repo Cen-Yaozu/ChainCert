@@ -19,8 +19,8 @@ public class User {
     /**
      * 用户ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     
     /**
      * 用户名（唯一）
@@ -45,12 +45,12 @@ public class User {
     /**
      * 学院ID
      */
-    private String collegeId;
+    private Long collegeId;
     
     /**
      * 专业ID
      */
-    private String majorId;
+    private Long majorId;
     
     /**
      * 学号
@@ -145,13 +145,13 @@ public class User {
     }
     
     public static class UserBuilder {
-        private String id;
+        private Long id;
         private String username;
         private String password;
         private String name;
         private String role;
-        private String collegeId;
-        private String majorId;
+        private Long collegeId;
+        private Long majorId;
         private String studentNo;
         private String employeeNo;
         private String email;
@@ -168,7 +168,7 @@ public class User {
         UserBuilder() {
         }
         
-        public UserBuilder id(String id) {
+        public UserBuilder id(Long id) {
             this.id = id;
             return this;
         }
@@ -198,12 +198,12 @@ public class User {
             return this;
         }
         
-        public UserBuilder collegeId(String collegeId) {
+        public UserBuilder collegeId(Long collegeId) {
             this.collegeId = collegeId;
             return this;
         }
         
-        public UserBuilder majorId(String majorId) {
+        public UserBuilder majorId(Long majorId) {
             this.majorId = majorId;
             return this;
         }

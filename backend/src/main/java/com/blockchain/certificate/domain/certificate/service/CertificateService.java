@@ -4,6 +4,7 @@ package com.blockchain.certificate.domain.certificate.service;
 
 import com.blockchain.certificate.infrastructure.ipfs.IpfsService;
 import com.blockchain.certificate.infrastructure.blockchain.BlockchainService;
+import com.blockchain.certificate.infrastructure.blockchain.WebaseBlockchainService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,7 +19,6 @@ import com.blockchain.certificate.domain.certificate.repository.CertificateTempl
 import com.blockchain.certificate.domain.user.repository.UserRepository;
 import com.blockchain.certificate.shared.util.CertificateNumberGenerator;
 import com.blockchain.certificate.shared.util.PdfGenerator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -33,6 +33,10 @@ import java.util.Map;
 /**
  * 证书服务类
  * 提供证书生成、查询、撤销、下载等功能
+ *
+ * 支持两种区块链服务模式：
+ * 1. SDK 模式 (blockchain.enabled=true): 使用 FISCO BCOS SDK 直连
+ * 2. WeBASE 模式 (webase.enabled=true): 使用 WeBASE-Front HTTP API
  */
 @Service
 @Slf4j
@@ -46,8 +50,11 @@ public class CertificateService {
     private final PdfGenerator pdfGenerator;
     private final IpfsService ipfsService;
     
-    // 区块链服务是可选的，如果未启用则为null
+    // SDK 模式的区块链服务（可选）
     private final BlockchainService blockchainService;
+    
+    // WeBASE 模式的区块链服务（可选）
+    private final WebaseBlockchainService webaseBlockchainService;
     
     public CertificateService(
             CertificateRepository certificateRepository,
@@ -57,7 +64,8 @@ public class CertificateService {
             CertificateNumberGenerator certificateNumberGenerator,
             PdfGenerator pdfGenerator,
             IpfsService ipfsService,
-            @org.springframework.beans.factory.annotation.Autowired(required = false) BlockchainService blockchainService) {
+            @org.springframework.beans.factory.annotation.Autowired(required = false) BlockchainService blockchainService,
+            @org.springframework.beans.factory.annotation.Autowired(required = false) WebaseBlockchainService webaseBlockchainService) {
         this.certificateRepository = certificateRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
@@ -66,6 +74,36 @@ public class CertificateService {
         this.pdfGenerator = pdfGenerator;
         this.ipfsService = ipfsService;
         this.blockchainService = blockchainService;
+        this.webaseBlockchainService = webaseBlockchainService;
+        
+        // 日志输出当前使用的区块链模式
+        if (webaseBlockchainService != null) {
+            log.info("证书服务初始化：使用 WeBASE 模式");
+        } else if (blockchainService != null) {
+            log.info("证书服务初始化：使用 SDK 模式");
+        } else {
+            log.warn("证书服务初始化：区块链服务未启用");
+        }
+    }
+    
+    /**
+     * 检查区块链服务是否可用
+     */
+    public boolean isBlockchainAvailable() {
+        return webaseBlockchainService != null || blockchainService != null;
+    }
+    
+    /**
+     * 获取当前使用的区块链模式
+     */
+    public String getBlockchainMode() {
+        if (webaseBlockchainService != null) {
+            return "WeBASE";
+        } else if (blockchainService != null) {
+            return "SDK";
+        } else {
+            return "DISABLED";
+        }
     }
 
     /**
@@ -114,7 +152,8 @@ public class CertificateService {
         log.info("开始生成证书，申请ID: {}", applicationId);
 
         // 获取申请信息
-        Application application = applicationRepository.selectById(applicationId);
+        Long applicationIdLong = Long.parseLong(applicationId);
+        Application application = applicationRepository.selectById(applicationIdLong);
         if (application == null) {
             throw new BusinessException("申请不存在");
         }
@@ -126,7 +165,7 @@ public class CertificateService {
 
         // 检查是否已生成证书
         LambdaQueryWrapper<Certificate> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Certificate::getApplicationId, applicationId);
+        queryWrapper.eq(Certificate::getApplicationId, applicationIdLong);
         Certificate existingCertificate = certificateRepository.selectOne(queryWrapper);
         if (existingCertificate != null) {
             log.warn("证书已存在，申请ID: {}, 证书编号: {}", applicationId, existingCertificate.getCertificateNo());
@@ -169,7 +208,7 @@ public class CertificateService {
         // 创建证书记录
         Certificate certificate = Certificate.builder()
                 .certificateNo(certificateNo)
-                .applicationId(applicationId)
+                .applicationId(applicationIdLong)
                 .holderId(holder.getId())
                 .title(application.getTitle())
                 .certificateType(application.getCertificateType())
@@ -184,8 +223,25 @@ public class CertificateService {
             certificateRepository.insert(certificate);
             log.info("证书记录保存成功，证书ID: {}", certificate.getId());
 
-            // 区块链存证（如果区块链服务可用）
-            if (blockchainService != null) {
+            // 区块链存证（优先使用 WeBASE，其次使用 SDK）
+            if (webaseBlockchainService != null) {
+                // 使用 WeBASE 模式
+                try {
+                    WebaseBlockchainService.BlockchainStorageResult blockchainResult =
+                        webaseBlockchainService.storeCertificate(certificateNo, fileHash);
+                    
+                    // 更新区块链信息
+                    certificate.setBlockchainTxHash(blockchainResult.getTransactionHash());
+                    certificate.setBlockHeight(blockchainResult.getBlockNumber());
+                    certificateRepository.updateById(certificate);
+                    
+                    log.info("证书区块链存证成功（WeBASE），交易哈希: {}", blockchainResult.getTransactionHash());
+                } catch (Exception e) {
+                    log.error("证书区块链存证失败（WeBASE），证书编号: {}", certificateNo, e);
+                    // 区块链存证失败不影响证书生成，记录日志即可
+                }
+            } else if (blockchainService != null) {
+                // 使用 SDK 模式
                 try {
                     BlockchainService.BlockchainStorageResult blockchainResult =
                         blockchainService.storeCertificate(certificateNo, fileHash);
@@ -195,9 +251,9 @@ public class CertificateService {
                     certificate.setBlockHeight(blockchainResult.getBlockNumber());
                     certificateRepository.updateById(certificate);
                     
-                    log.info("证书区块链存证成功，交易哈希: {}", blockchainResult.getTransactionHash());
+                    log.info("证书区块链存证成功（SDK），交易哈希: {}", blockchainResult.getTransactionHash());
                 } catch (Exception e) {
-                    log.error("证书区块链存证失败，证书编号: {}", certificateNo, e);
+                    log.error("证书区块链存证失败（SDK），证书编号: {}", certificateNo, e);
                     // 区块链存证失败不影响证书生成，记录日志即可
                 }
             } else {
@@ -243,7 +299,7 @@ public class CertificateService {
         LambdaQueryWrapper<Certificate> queryWrapper = new LambdaQueryWrapper<>();
         
         if (StringUtils.isNotBlank(holderId)) {
-            queryWrapper.eq(Certificate::getHolderId, holderId);
+            queryWrapper.eq(Certificate::getHolderId, Long.parseLong(holderId));
         }
         
         if (StringUtils.isNotBlank(certificateNo)) {
@@ -284,7 +340,8 @@ public class CertificateService {
     public Certificate getCertificateDetail(String certificateId) throws BusinessException {
         log.info("查询证书详情，证书ID: {}", certificateId);
 
-        Certificate certificate = certificateRepository.selectById(certificateId);
+        Long certificateIdLong = Long.parseLong(certificateId);
+        Certificate certificate = certificateRepository.selectById(certificateIdLong);
         if (certificate == null) {
             throw new BusinessException("证书不存在");
         }
@@ -327,7 +384,8 @@ public class CertificateService {
     public byte[] downloadCertificate(String certificateId) throws BusinessException {
         log.info("下载证书，证书ID: {}", certificateId);
 
-        Certificate certificate = certificateRepository.selectById(certificateId);
+        Long certificateIdLong = Long.parseLong(certificateId);
+        Certificate certificate = certificateRepository.selectById(certificateIdLong);
         if (certificate == null) {
             throw new BusinessException("证书不存在");
         }
@@ -358,7 +416,8 @@ public class CertificateService {
     public void revokeCertificate(String certificateId, String reason) throws BusinessException {
         log.info("开始撤销证书，证书ID: {}, 原因: {}", certificateId, reason);
 
-        Certificate certificate = certificateRepository.selectById(certificateId);
+        Long certificateIdLong = Long.parseLong(certificateId);
+        Certificate certificate = certificateRepository.selectById(certificateIdLong);
         if (certificate == null) {
             throw new BusinessException("证书不存在");
         }
@@ -373,13 +432,21 @@ public class CertificateService {
         certificate.setUpdateTime(LocalDateTime.now());
         certificateRepository.updateById(certificate);
 
-        // 区块链撤销（如果区块链服务可用）
-        if (blockchainService != null) {
+        // 区块链撤销（优先使用 WeBASE，其次使用 SDK）
+        if (webaseBlockchainService != null) {
+            try {
+                webaseBlockchainService.revokeCertificate(certificate.getCertificateNo());
+                log.info("证书区块链撤销成功（WeBASE），证书编号: {}", certificate.getCertificateNo());
+            } catch (Exception e) {
+                log.error("证书区块链撤销失败（WeBASE），证书编号: {}", certificate.getCertificateNo(), e);
+                // 区块链撤销失败不影响数据库状态更新
+            }
+        } else if (blockchainService != null) {
             try {
                 blockchainService.revokeCertificate(certificate.getCertificateNo());
-                log.info("证书区块链撤销成功，证书编号: {}", certificate.getCertificateNo());
+                log.info("证书区块链撤销成功（SDK），证书编号: {}", certificate.getCertificateNo());
             } catch (Exception e) {
-                log.error("证书区块链撤销失败，证书编号: {}", certificate.getCertificateNo(), e);
+                log.error("证书区块链撤销失败（SDK），证书编号: {}", certificate.getCertificateNo(), e);
                 // 区块链撤销失败不影响数据库状态更新
             }
         } else {
@@ -465,7 +532,7 @@ public class CertificateService {
         LambdaQueryWrapper<Certificate> queryWrapper = new LambdaQueryWrapper<>();
         
         if (StringUtils.isNotBlank(holderId)) {
-            queryWrapper.eq(Certificate::getHolderId, holderId);
+            queryWrapper.eq(Certificate::getHolderId, Long.parseLong(holderId));
         }
         
         if (StringUtils.isNotBlank(status)) {

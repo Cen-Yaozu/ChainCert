@@ -4,6 +4,23 @@ import type { User, LoginRequest, LoginResponse } from '@/types'
 import { authApi } from '@/api/auth'
 
 /**
+ * 后端登录响应格式
+ */
+interface BackendLoginResponse {
+  token: string
+  refreshToken: string
+  userInfo: {
+    id: string
+    username: string
+    name: string
+    role: string
+    email: string
+    phone?: string
+    collegeId?: string
+  }
+}
+
+/**
  * 认证状态管理
  */
 export const useAuthStore = defineStore('auth', () => {
@@ -21,8 +38,27 @@ export const useAuthStore = defineStore('auth', () => {
    * 登录
    */
   const login = async (loginData: LoginRequest): Promise<void> => {
-    const response = await authApi.login(loginData)
-    setAuthData(response)
+    const response = await authApi.login(loginData) as unknown as BackendLoginResponse
+    // 转换后端响应格式为前端期望的格式
+    const normalizedResponse: LoginResponse = {
+      accessToken: response.token,
+      refreshToken: response.refreshToken,
+      tokenType: 'Bearer',
+      expiresIn: 7200,
+      user: {
+        id: response.userInfo.id,
+        username: response.userInfo.username,
+        realName: response.userInfo.name,
+        email: response.userInfo.email,
+        phone: response.userInfo.phone,
+        role: response.userInfo.role as any,
+        collegeId: response.userInfo.collegeId,
+        enabled: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    }
+    setAuthData(normalizedResponse)
   }
 
   /**

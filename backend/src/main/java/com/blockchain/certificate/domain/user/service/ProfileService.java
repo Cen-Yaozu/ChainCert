@@ -31,8 +31,10 @@ public class ProfileService {
     public UserResponse getProfile(String userId) {
         log.info("获取个人信息: userId={}", userId);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         return convertToResponse(user);
     }
@@ -44,8 +46,10 @@ public class ProfileService {
     public UserResponse updateProfile(String userId, UserResponse request) {
         log.info("更新个人信息: userId={}", userId);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         // 检查邮箱是否被其他用户占用
         if (StringUtils.hasText(request.getEmail()) && 
@@ -79,8 +83,10 @@ public class ProfileService {
     public void changePassword(String userId, PasswordChangeRequest request) {
         log.info("修改密码: userId={}", userId);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         // 验证旧密码
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
@@ -112,8 +118,10 @@ public class ProfileService {
     public void updateAvatar(String userId, String avatarUrl) {
         log.info("更新头像: userId={}", userId);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         user.setUpdateTime(LocalDateTime.now());
         userRepository.updateById(user);
@@ -126,15 +134,15 @@ public class ProfileService {
      */
     private UserResponse convertToResponse(User user) {
         return UserResponse.builder()
-                .id(user.getId())
+                .id(String.valueOf(user.getId()))
                 .username(user.getUsername())
                 .realName(user.getRealName())
                 .studentId(user.getStudentId())
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .role(user.getRole())
-                .collegeId(user.getCollegeId())
-                .majorId(user.getMajorId())
+                .collegeId(user.getCollegeId() != null ? String.valueOf(user.getCollegeId()) : null)
+                .majorId(user.getMajorId() != null ? String.valueOf(user.getMajorId()) : null)
                 .enabled(user.getEnabled())
                 .createTime(user.getCreateTime())
                 .updateTime(user.getUpdateTime())

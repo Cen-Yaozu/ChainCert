@@ -22,8 +22,8 @@ public class Certificate {
     /**
      * 证书ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     
     /**
      * 证书编号（全局唯一）
@@ -33,12 +33,12 @@ public class Certificate {
     /**
      * 申请ID
      */
-    private String applicationId;
+    private Long applicationId;
     
     /**
      * 持有人ID
      */
-    private String holderId;
+    private Long holderId;
     
     /**
      * 证书标题

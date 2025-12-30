@@ -21,18 +21,18 @@ public class Approval {
     /**
      * 审批记录ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     
     /**
      * 申请ID
      */
-    private String applicationId;
+    private Long applicationId;
     
     /**
      * 审批人ID
      */
-    private String approverId;
+    private Long approverId;
     
     /**
      * 审批级别：COLLEGE, SCHOOL

@@ -1,5 +1,7 @@
-@import './variables.scss';
-@import './mixins.scss';
+@use 'sass:color';
+@use 'sass:map';
+@use './variables.scss' as *;
+@use './mixins.scss' as *;
 
 // 全局重置样式
 * {
@@ -35,7 +37,7 @@ a {
   transition: color 0.3s;
 
   &:hover {
-    color: darken($primary-color, 10%);
+    color: color.adjust($primary-color, $lightness: -10%);
   }
 }
 
@@ -94,7 +96,7 @@ a {
 
 // 间距工具类
 @each $size in (xs, sm, md, lg, xl) {
-  $value: map-get(
+  $value: map.get(
     (
       xs: $spacing-xs,
       sm: $spacing-sm,

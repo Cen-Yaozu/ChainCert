@@ -42,14 +42,17 @@ service.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
     const res = response.data
 
-    // 如果返回的状态码不是 200，则认为是错误
-    // 注意：后端返回的code可能是字符串"200"或数字200
-    const code = typeof res.code === 'string' ? parseInt(res.code) : res.code
-    if (code !== 200 && code !== 0 && res.success !== true) {
+    // 检查响应是否成功
+    // 后端返回格式: { success: boolean, code: string, message: string, data: T }
+    // success 为 true 或 code 为 "200" 表示成功
+    const codeStr = String(res.code)
+    const isSuccess = res.success === true || codeStr === '200' || codeStr === '0'
+    
+    if (!isSuccess) {
       ElMessage.error(res.message || '请求失败')
       
       // 401: Token 过期或无效
-      if (code === 401 || res.code === 'UNAUTHORIZED') {
+      if (codeStr === '401' || codeStr === 'UNAUTHORIZED') {
         const authStore = useAuthStore()
         authStore.clearAuthData()
         router.push({ name: 'Login' })
@@ -65,6 +68,13 @@ service.interceptors.response.use(
 
     if (error.response) {
       const { status, data } = error.response
+
+      // 处理后端返回的业务错误（HTTP 400 但包含有效的错误消息）
+      if (status === 400 && data && data.message) {
+        // 不重复显示错误消息，因为响应拦截器已经处理过了
+        // 直接返回带有错误消息的 Promise.reject
+        return Promise.reject(new Error(data.message))
+      }
 
       switch (status) {
         case 401:

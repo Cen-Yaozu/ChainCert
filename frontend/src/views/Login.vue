@@ -80,9 +80,15 @@
       </el-form>
 
       <div class="login-footer">
-        <el-link type="info" :underline="false" @click="goToVerify">
-          证书核验
-        </el-link>
+        <div class="footer-links">
+          <el-link type="primary" :underline="false" @click="goToRegister">
+            注册账号
+          </el-link>
+          <span class="divider">|</span>
+          <el-link type="info" :underline="false" @click="goToVerify">
+            证书核验
+          </el-link>
+        </div>
       </div>
     </div>
   </div>
@@ -218,6 +224,13 @@ const goToVerify = () => {
 }
 
 /**
+ * 跳转到注册页面
+ */
+const goToRegister = () => {
+  router.push('/register')
+}
+
+/**
  * 初始化
  */
 onMounted(() => {
@@ -329,6 +342,17 @@ onMounted(() => {
   margin-top: 24px;
   padding-top: 24px;
   border-top: 1px solid var(--el-border-color-lighter);
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+
+    .divider {
+      color: var(--el-border-color);
+    }
+  }
 }
 
 @keyframes rotate {

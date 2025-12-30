@@ -89,7 +89,8 @@ public class ApplicationService {
         log.info("开始创建申请，申请人ID: {}, 标题: {}", applicantId, request.getTitle());
 
         // 获取申请人信息
-        User applicant = userRepository.selectById(applicantId);
+        Long applicantIdLong = Long.parseLong(applicantId);
+        User applicant = userRepository.selectById(applicantIdLong);
         if (applicant == null) {
             throw new BusinessException("申请人不存在");
         }
@@ -100,7 +101,7 @@ public class ApplicationService {
         }
 
         // 验证申请人是否有学院信息
-        if (StringUtils.isBlank(applicant.getCollegeId())) {
+        if (applicant.getCollegeId() == null) {
             throw new BusinessException("申请人未分配学院，请联系管理员");
         }
 
@@ -115,7 +116,7 @@ public class ApplicationService {
 
         // 创建申请记录
         Application application = Application.builder()
-                .applicantId(applicantId)
+                .applicantId(applicantIdLong)
                 .title(request.getTitle())
                 .certificateType(request.getCertificateType())
                 .status(ApplicationStatus.PENDING_COLLEGE.getCode())
@@ -157,7 +158,7 @@ public class ApplicationService {
         LambdaQueryWrapper<Application> queryWrapper = new LambdaQueryWrapper<>();
         
         if (StringUtils.isNotBlank(applicantId)) {
-            queryWrapper.eq(Application::getApplicantId, applicantId);
+            queryWrapper.eq(Application::getApplicantId, Long.parseLong(applicantId));
         }
         
         if (StringUtils.isNotBlank(status)) {
@@ -194,14 +195,18 @@ public class ApplicationService {
     public ApplicationResponse getApplicationDetail(String applicationId, String applicantId) throws BusinessException {
         log.info("查询申请详情，申请ID: {}, 申请人ID: {}", applicationId, applicantId);
 
-        Application application = applicationRepository.selectById(applicationId);
+        Long applicationIdLong = Long.parseLong(applicationId);
+        Application application = applicationRepository.selectById(applicationIdLong);
         if (application == null) {
             throw new BusinessException("申请不存在");
         }
 
         // 权限验证：如果指定了申请人ID，则只能查看自己的申请
-        if (StringUtils.isNotBlank(applicantId) && !applicantId.equals(application.getApplicantId())) {
-            throw new BusinessException("无权查看该申请");
+        if (StringUtils.isNotBlank(applicantId)) {
+            Long applicantIdLong = Long.parseLong(applicantId);
+            if (!applicantIdLong.equals(application.getApplicantId())) {
+                throw new BusinessException("无权查看该申请");
+            }
         }
 
         // 获取申请人信息
@@ -230,13 +235,15 @@ public class ApplicationService {
     public void cancelApplication(String applicationId, String applicantId) throws BusinessException {
         log.info("开始取消申请，申请ID: {}, 申请人ID: {}", applicationId, applicantId);
 
-        Application application = applicationRepository.selectById(applicationId);
+        Long applicationIdLong = Long.parseLong(applicationId);
+        Application application = applicationRepository.selectById(applicationIdLong);
         if (application == null) {
             throw new BusinessException("申请不存在");
         }
 
         // 权限验证：只能取消自己的申请
-        if (!applicantId.equals(application.getApplicantId())) {
+        Long applicantIdLong = Long.parseLong(applicantId);
+        if (!applicantIdLong.equals(application.getApplicantId())) {
             throw new BusinessException("无权取消该申请");
         }
 
@@ -251,7 +258,7 @@ public class ApplicationService {
         }
 
         // 删除数据库记录
-        applicationRepository.deleteById(applicationId);
+        applicationRepository.deleteById(applicationIdLong);
 
         log.info("申请取消成功，申请ID: {}", applicationId);
     }
@@ -348,15 +355,15 @@ public class ApplicationService {
      */
     private ApplicationResponse buildApplicationResponse(Application application, User applicant, College college) {
         return ApplicationResponse.builder()
-                .id(application.getId())
-                .applicantId(application.getApplicantId())
+                .id(String.valueOf(application.getId()))
+                .applicantId(String.valueOf(application.getApplicantId()))
                 .applicantName(applicant.getName())
                 .studentNo(applicant.getStudentNo())
                 .title(application.getTitle())
                 .certificateType(application.getCertificateType())
                 .status(application.getStatus())
                 .statusDesc(ApplicationStatus.getDescByCode(application.getStatus()))
-                .collegeId(application.getCollegeId())
+                .collegeId(String.valueOf(application.getCollegeId()))
                 .collegeName(college.getName())
                 .proofFiles(application.getProofFiles())
                 .createTime(application.getCreateTime())
@@ -377,20 +384,20 @@ public class ApplicationService {
         }
 
         // 获取所有申请人ID和学院ID
-        Set<String> applicantIds = applications.stream()
+        Set<Long> applicantIds = applications.stream()
                 .map(Application::getApplicantId)
                 .collect(Collectors.toSet());
         
-        Set<String> collegeIds = applications.stream()
+        Set<Long> collegeIds = applications.stream()
                 .map(Application::getCollegeId)
                 .collect(Collectors.toSet());
 
         // 批量查询申请人和学院信息
-        Map<String, User> applicantMap = userRepository.selectBatchIds(applicantIds)
+        Map<Long, User> applicantMap = userRepository.selectBatchIds(applicantIds)
                 .stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
         
-        Map<String, College> collegeMap = collegeRepository.selectBatchIds(collegeIds)
+        Map<Long, College> collegeMap = collegeRepository.selectBatchIds(collegeIds)
                 .stream()
                 .collect(Collectors.toMap(College::getId, college -> college));
 
@@ -401,7 +408,7 @@ public class ApplicationService {
                     College college = collegeMap.get(application.getCollegeId());
                     
                     return ApplicationListVO.builder()
-                            .id(application.getId())
+                            .id(String.valueOf(application.getId()))
                             .title(application.getTitle())
                             .certificateType(application.getCertificateType())
                             .status(application.getStatus())

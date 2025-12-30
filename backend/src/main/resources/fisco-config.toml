@@ -1,5 +1,5 @@
 [cryptoMaterial]
-certPath = "conf"
+certPath = "fisco"
 disableSsl = "false"
 useSMCrypto = "false"
 

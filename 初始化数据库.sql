@@ -172,40 +172,21 @@ CREATE TABLE IF NOT EXISTS t_system_config (
 -- 插入初始数据
 
 -- 插入学院数据
-INSERT INTO t_college (id, name, code, enabled, deleted) VALUES 
+INSERT INTO t_college (id, name, code, enabled, deleted) VALUES
 (1, '计算机学院', 'CS', TRUE, FALSE),
 (2, '软件学院', 'SE', TRUE, FALSE),
 (3, '信息学院', 'IS', TRUE, FALSE);
 
 -- 插入专业数据
-INSERT INTO t_major (id, college_id, name, code, enabled, deleted) VALUES 
+INSERT INTO t_major (id, college_id, name, code, enabled, deleted) VALUES
 (1, 1, '计算机科学与技术', 'CS01', TRUE, FALSE),
 (2, 1, '人工智能', 'CS02', TRUE, FALSE),
 (3, 2, '软件工程', 'SE01', TRUE, FALSE),
 (4, 2, '数据科学与大数据技术', 'SE02', TRUE, FALSE),
 (5, 3, '信息安全', 'IS01', TRUE, FALSE);
 
--- 插入管理员用户
--- 密码: admin123 (BCrypt加密后的值)
-INSERT INTO t_user (id, username, password, name, role, email, phone, enabled, status, deleted) VALUES 
-(1, 'admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '系统管理员', 'SYSTEM_ADMIN', 'admin@example.com', '13800138000', TRUE, 'ACTIVE', FALSE);
-
--- 插入学院管理员
--- 密码: admin123
-INSERT INTO t_user (id, username, password, name, role, college_id, employee_no, email, enabled, status, deleted) VALUES 
-(2, 'cs_admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '计算机学院管理员', 'COLLEGE_ADMIN', 1, 'T001', 'cs_admin@example.com', TRUE, 'ACTIVE', FALSE),
-(3, 'se_admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '软件学院管理员', 'COLLEGE_ADMIN', 2, 'T002', 'se_admin@example.com', TRUE, 'ACTIVE', FALSE);
-
--- 插入学校管理员
--- 密码: admin123
-INSERT INTO t_user (id, username, password, name, role, employee_no, email, enabled, status, deleted) VALUES 
-(4, 'school_admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa', '学校管理员', 'SCHOOL_ADMIN', 'T003', 'school_admin@example.com', TRUE, 'ACTIVE', FALSE);
-
--- 插入测试学生
--- 密码: student123
-INSERT INTO t_user (id, username, password, name, role, college_id, major_id, student_no, email, enabled, status, deleted) VALUES 
-(5, 'student1', '$2a$10$rZ7Qw8YLhc8.vF5K5FqXXuMKp7VvJLxvXxvXxvXxvXxvXxvXxvXxv', '张三', 'STUDENT', 1, 1, '2021001', 'student1@example.com', TRUE, 'ACTIVE', FALSE),
-(6, 'student2', '$2a$10$rZ7Qw8YLhc8.vF5K5FqXXuMKp7VvJLxvXxvXxvXxvXxvXxvXxvXxv', '李四', 'STUDENT', 2, 3, '2021002', 'student2@example.com', TRUE, 'ACTIVE', FALSE);
+-- 注意：用户数据通过注册接口创建，不再预设
+-- 请使用 POST /api/auth/register 接口注册用户
 
 -- 插入系统配置
 INSERT INTO t_system_config (config_key, config_value, description, deleted) VALUES 
@@ -225,6 +206,5 @@ COMMIT;
 
 -- 显示初始化结果
 SELECT '数据库初始化完成！' AS message;
-SELECT '默认管理员账号: admin, 密码: admin123' AS admin_info;
-SELECT '学院管理员账号: cs_admin/se_admin, 密码: admin123' AS college_admin_info;
-SELECT '学校管理员账号: school_admin, 密码: admin123' AS school_admin_info;
+SELECT '请使用 POST /api/auth/register 接口注册用户' AS register_info;
+SELECT '注册示例: {"username":"admin","password":"admin123","confirmPassword":"admin123","name":"系统管理员","role":"SYSTEM_ADMIN","captcha":"xxxx","captchaKey":"xxxx"}' AS example;

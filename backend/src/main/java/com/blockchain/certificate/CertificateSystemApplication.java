@@ -26,12 +26,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
     "com.blockchain.certificate.infrastructure",   // 基础设施层
     "com.blockchain.certificate.interfaces",       // 接口层
     "com.blockchain.certificate.shared",           // 共享层
-    "com.blockchain.certificate"                   // 保留旧包(向后兼容)
+    "com.blockchain.certificate.model"             // DTO/VO模型层
 })
-@MapperScan({
-    "com.blockchain.certificate.domain.*.repository",  // 新Repository扫描
-    "com.blockchain.certificate.repository"            // 保留旧的(向后兼容)
-})
+@MapperScan("com.blockchain.certificate.domain.*.repository")  // Repository扫描
 public class CertificateSystemApplication {
 
     public static void main(String[] args) {

@@ -67,7 +67,8 @@ public class TemplateService {
     public TemplateResponse updateTemplate(String templateId, TemplateRequest request) {
         log.info("更新证书模板: {}", templateId);
         
-        CertificateTemplate template = templateRepository.selectById(templateId);
+        Long templateIdLong = Long.parseLong(templateId);
+        CertificateTemplate template = templateRepository.selectById(templateIdLong);
         if (template == null) {
             throw new BusinessException("证书模板不存在");
         }
@@ -76,7 +77,7 @@ public class TemplateService {
         if (!template.getName().equals(request.getName())) {
             LambdaQueryWrapper<CertificateTemplate> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(CertificateTemplate::getName, request.getName());
-            wrapper.ne(CertificateTemplate::getId, templateId);
+            wrapper.ne(CertificateTemplate::getId, templateIdLong);
             if (templateRepository.selectCount(wrapper) > 0) {
                 throw new BusinessException("模板名称已存在");
             }
@@ -105,12 +106,13 @@ public class TemplateService {
     public void deleteTemplate(String templateId) {
         log.info("删除证书模板: {}", templateId);
         
-        CertificateTemplate template = templateRepository.selectById(templateId);
+        Long templateIdLong = Long.parseLong(templateId);
+        CertificateTemplate template = templateRepository.selectById(templateIdLong);
         if (template == null) {
             throw new BusinessException("证书模板不存在");
         }
         
-        templateRepository.deleteById(templateId);
+        templateRepository.deleteById(templateIdLong);
         log.info("证书模板删除成功: {}", templateId);
     }
     
@@ -120,7 +122,8 @@ public class TemplateService {
     public TemplateResponse getTemplateById(String templateId) {
         log.info("获取证书模板详情: {}", templateId);
         
-        CertificateTemplate template = templateRepository.selectById(templateId);
+        Long templateIdLong = Long.parseLong(templateId);
+        CertificateTemplate template = templateRepository.selectById(templateIdLong);
         if (template == null) {
             throw new BusinessException("证书模板不存在");
         }
@@ -214,7 +217,8 @@ public class TemplateService {
     public void toggleTemplateStatus(String templateId, Boolean enabled) {
         log.info("切换模板状态: templateId={}, enabled={}", templateId, enabled);
         
-        CertificateTemplate template = templateRepository.selectById(templateId);
+        Long templateIdLong = Long.parseLong(templateId);
+        CertificateTemplate template = templateRepository.selectById(templateIdLong);
         if (template == null) {
             throw new BusinessException("证书模板不存在");
         }
@@ -231,7 +235,7 @@ public class TemplateService {
      */
     private TemplateResponse convertToResponse(CertificateTemplate template) {
         return TemplateResponse.builder()
-                .id(template.getId())
+                .id(String.valueOf(template.getId()))
                 .name(template.getName())
                 .type(template.getType())
                 .content(template.getContent())

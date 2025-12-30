@@ -66,8 +66,8 @@ public class UserService {
                 .email(request.getEmail())
                 .phone(request.getPhone())
                 .role(request.getRole())
-                .collegeId(request.getCollegeId())
-                .majorId(request.getMajorId())
+                .collegeId(StringUtils.hasText(request.getCollegeId()) ? Long.parseLong(request.getCollegeId()) : null)
+                .majorId(StringUtils.hasText(request.getMajorId()) ? Long.parseLong(request.getMajorId()) : null)
                 .enabled(true)
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
@@ -86,8 +86,10 @@ public class UserService {
     public UserResponse updateUser(String userId, UserRequest request) {
         log.info("更新用户信息: {}", userId);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         // 检查用户名是否被其他用户占用
         if (!user.getUsername().equals(request.getUsername()) && 
@@ -116,8 +118,8 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setRole(request.getRole());
-        user.setCollegeId(request.getCollegeId());
-        user.setMajorId(request.getMajorId());
+        user.setCollegeId(StringUtils.hasText(request.getCollegeId()) ? Long.parseLong(request.getCollegeId()) : null);
+        user.setMajorId(StringUtils.hasText(request.getMajorId()) ? Long.parseLong(request.getMajorId()) : null);
         user.setUpdateTime(LocalDateTime.now());
         
         // 如果提供了新密码，则更新密码
@@ -138,8 +140,10 @@ public class UserService {
     public void deleteUser(String userId) {
         log.info("删除用户: {}", userId);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         // 检查是否为系统管理员
         if ("ADMIN".equals(user.getRole())) {
@@ -150,7 +154,7 @@ public class UserService {
             }
         }
         
-        userRepository.deleteById(userId);
+        userRepository.deleteById(Long.parseLong(userId));
         log.info("用户删除成功: {}", userId);
     }
     
@@ -160,8 +164,10 @@ public class UserService {
     public UserResponse getUserById(String userId) {
         log.info("获取用户详情: {}", userId);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         return convertToResponse(user);
     }
@@ -192,7 +198,7 @@ public class UserService {
         
         // 学院筛选
         if (StringUtils.hasText(collegeId)) {
-            wrapper.eq(User::getCollegeId, collegeId);
+            wrapper.eq(User::getCollegeId, Long.parseLong(collegeId));
         }
         
         wrapper.orderByDesc(User::getCreateTime);
@@ -218,8 +224,10 @@ public class UserService {
     public void toggleUserStatus(String userId, Boolean enabled) {
         log.info("切换用户状态: userId={}, enabled={}", userId, enabled);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         // 检查是否为系统管理员
         if ("ADMIN".equals(user.getRole()) && !enabled) {
@@ -244,8 +252,10 @@ public class UserService {
     public void resetPassword(String userId, String newPassword) {
         log.info("重置用户密码: {}", userId);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setUpdateTime(LocalDateTime.now());
@@ -261,8 +271,10 @@ public class UserService {
     public void changePassword(String userId, PasswordChangeRequest request) {
         log.info("修改用户密码: {}", userId);
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userRepository.selectById(Long.parseLong(userId));
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
         
         // 验证旧密码
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
@@ -307,15 +319,15 @@ public class UserService {
      */
     private UserResponse convertToResponse(User user) {
         return UserResponse.builder()
-                .id(user.getId())
+                .id(String.valueOf(user.getId()))
                 .username(user.getUsername())
                 .realName(user.getRealName())
                 .studentId(user.getStudentId())
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .role(user.getRole())
-                .collegeId(user.getCollegeId())
-                .majorId(user.getMajorId())
+                .collegeId(user.getCollegeId() != null ? String.valueOf(user.getCollegeId()) : null)
+                .majorId(user.getMajorId() != null ? String.valueOf(user.getMajorId()) : null)
                 .enabled(user.getEnabled())
                 .createTime(user.getCreateTime())
                 .updateTime(user.getUpdateTime())
@@ -327,13 +339,13 @@ public class UserService {
      */
     private UserListVO convertToListVO(User user) {
         return UserListVO.builder()
-                .id(user.getId())
+                .id(String.valueOf(user.getId()))
                 .username(user.getUsername())
                 .realName(user.getRealName())
                 .studentId(user.getStudentId())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .collegeId(user.getCollegeId())
+                .collegeId(user.getCollegeId() != null ? String.valueOf(user.getCollegeId()) : null)
                 .enabled(user.getEnabled())
                 .createTime(user.getCreateTime())
                 .build();

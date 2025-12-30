@@ -1,0 +1,29 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+logs/
+*.log
+
+# SDK files
+*.zip
+
+# Config directories (may contain sensitive data)
+config/
+
+# Node modules
+node_modules/
+dist/
+
+# Maven
+target/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp

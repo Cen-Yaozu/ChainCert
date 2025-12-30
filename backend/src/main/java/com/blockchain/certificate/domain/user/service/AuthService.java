@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.blockchain.certificate.shared.exception.BusinessException;
 import com.blockchain.certificate.model.dto.LoginRequest;
 import com.blockchain.certificate.model.dto.RefreshTokenRequest;
+import com.blockchain.certificate.model.dto.RegisterRequest;
 import com.blockchain.certificate.domain.user.model.User;
 import com.blockchain.certificate.model.vo.LoginResponse;
 import com.blockchain.certificate.domain.user.repository.UserRepository;
@@ -25,6 +26,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
@@ -111,13 +113,13 @@ public class AuthService {
                     .token(accessToken)
                     .refreshToken(refreshToken)
                     .userInfo(LoginResponse.UserInfo.builder()
-                            .id(user.getId())
+                            .id(String.valueOf(user.getId()))
                             .username(user.getUsername())
                             .name(user.getName())
                             .role(user.getRole())
                             .email(user.getEmail())
                             .phone(user.getPhone())
-                            .collegeId(user.getCollegeId())
+                            .collegeId(user.getCollegeId() != null ? String.valueOf(user.getCollegeId()) : null)
                             .build())
                     .build();
 
@@ -188,6 +190,103 @@ public class AuthService {
         // 删除 Redis 中的刷新令牌
         redisTemplate.delete(REFRESH_TOKEN_PREFIX + username);
         log.info("User logged out: {}", username);
+    }
+
+    /**
+     * 用户注册
+     *
+     * @param request 注册请求
+     * @return 注册成功的用户ID
+     */
+    @Transactional
+    public String register(RegisterRequest request) {
+        return register(request, true);
+    }
+
+    /**
+     * 用户注册（可选验证码验证）
+     *
+     * @param request 注册请求
+     * @param validateCaptcha 是否验证验证码
+     * @return 注册成功的用户ID
+     */
+    @Transactional
+    public String register(RegisterRequest request, boolean validateCaptcha) {
+        // 1. 验证验证码（可选）
+        if (validateCaptcha && !captchaService.validateCaptcha(request.getCaptchaKey(), request.getCaptcha())) {
+            throw new BusinessException("验证码错误或已过期");
+        }
+
+        // 2. 验证密码确认
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new BusinessException("两次输入的密码不一致");
+        }
+
+        // 3. 检查用户名是否已存在
+        User existingUser = userRepository.selectOne(
+                new LambdaQueryWrapper<User>()
+                        .eq(User::getUsername, request.getUsername())
+        );
+        if (existingUser != null) {
+            throw new BusinessException("用户名已存在");
+        }
+
+        // 4. 验证角色相关的必填字段
+        validateRoleFields(request);
+
+        // 5. 创建用户
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getName());
+        user.setRole(request.getRole());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        // 转换String类型的ID为Long类型
+        if (StringUtils.hasText(request.getCollegeId())) {
+            user.setCollegeId(Long.parseLong(request.getCollegeId()));
+        }
+        if (StringUtils.hasText(request.getMajorId())) {
+            user.setMajorId(Long.parseLong(request.getMajorId()));
+        }
+        user.setStudentNo(request.getStudentNo());
+        user.setEmployeeNo(request.getEmployeeNo());
+        user.setStatus("ACTIVE");
+        user.setEnabled(true);
+        user.setFailedLoginCount(0);
+        user.setDeleted(0);
+        user.setCreateTime(LocalDateTime.now());
+        user.setUpdateTime(LocalDateTime.now());
+
+        // 6. 保存用户
+        userRepository.insert(user);
+
+        log.info("User registered successfully: {}, role: {}", request.getUsername(), request.getRole());
+        return String.valueOf(user.getId());
+    }
+
+    /**
+     * 验证角色相关的必填字段
+     */
+    private void validateRoleFields(RegisterRequest request) {
+        String role = request.getRole();
+        
+        if ("STUDENT".equals(role)) {
+            if (!StringUtils.hasText(request.getCollegeId())) {
+                throw new BusinessException("学生必须选择学院");
+            }
+            if (!StringUtils.hasText(request.getMajorId())) {
+                throw new BusinessException("学生必须选择专业");
+            }
+            if (!StringUtils.hasText(request.getStudentNo())) {
+                throw new BusinessException("学生必须填写学号");
+            }
+        } else if ("COLLEGE_ADMIN".equals(role)) {
+            if (!StringUtils.hasText(request.getCollegeId())) {
+                throw new BusinessException("学院管理员必须选择学院");
+            }
+        }
+        // SCHOOL_ADMIN 和 SYSTEM_ADMIN 不需要额外验证
     }
 
     /**

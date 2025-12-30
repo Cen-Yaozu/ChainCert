@@ -36,7 +36,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         boolean accountNonLocked = !"LOCKED".equals(user.getStatus());
 
         return new UserPrincipal(
-                user.getId(),
+                String.valueOf(user.getId()),
                 user.getUsername(),
                 user.getPassword(),
                 user.getRole(),

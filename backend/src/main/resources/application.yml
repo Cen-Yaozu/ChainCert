@@ -7,7 +7,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/certificate_system?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: ${DB_PASSWORD:root}
+    password: ${DB_PASSWORD:root123456}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
@@ -49,7 +49,7 @@ spring:
 # MyBatis Plus 配置
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
-  type-aliases-package: com.blockchain.certificate.model.entity
+  type-aliases-package: com.blockchain.certificate.domain
   configuration:
     map-underscore-to-camel-case: true
     cache-enabled: false
@@ -63,7 +63,7 @@ mybatis-plus:
 
 # JWT 配置
 jwt:
-  secret: ${JWT_SECRET:blockchain-certificate-system-secret-key-2024}
+  secret: ${JWT_SECRET:blockchain-certificate-system-secret-key-2024-chaincert-graduation-project-secure-token}
   expiration: 7200000  # 2 hours in milliseconds
   refresh-expiration: 604800000  # 7 days in milliseconds
 
@@ -75,12 +75,19 @@ ipfs:
   timeout: 30000
   gateway-port: 8081
 
-# 区块链开关
-blockchain:
-  enabled: true
+# ========== 区块链配置 ==========
+# 两种模式二选一：
+# 1. SDK 模式 (blockchain.enabled=true): 需要证书文件，直连区块链节点
+# 2. WeBASE 模式 (webase.enabled=true): 通过 HTTP API，无需证书（推荐）
+# 3. 禁用模式: 两个都设为 false，系统以优雅降级模式运行
 
-# FISCO BCOS 配置
+# SDK 模式配置
+blockchain:
+  enabled: false  # 禁用 SDK 模式
+
+# FISCO BCOS SDK 配置（SDK 模式时使用）
 fisco:
+  config-path: ${FISCO_CONFIG_PATH:config/fisco/fisco-config.toml}
   nodes:
     - 127.0.0.1:20200
   group-id: 1
@@ -88,6 +95,20 @@ fisco:
     private-key: ${FISCO_PRIVATE_KEY:}
   contract:
     address: ${CONTRACT_ADDRESS:}
+
+# WeBASE 模式配置
+webase:
+  enabled: false  # 暂时禁用 WeBASE 模式（远程服务不可用）
+  front:
+    url: http://47.86.13.91:5002  # WeBASE-Front 地址
+    group-id: 1                    # 群组 ID
+    user-address: ${WEBASE_USER_ADDRESS:}  # 用户地址（从 WeBASE 获取）
+  contract:
+    address: ${WEBASE_CONTRACT_ADDRESS:}   # 合约地址（部署后填写）
+
+# 注意：当前区块链功能已禁用，系统以优雅降级模式运行
+# 证书存证功能将跳过区块链步骤，但其他功能正常
+# 等 WeBASE 服务恢复后，将 webase.enabled 改为 true 即可
 
 # 日志配置
 logging:

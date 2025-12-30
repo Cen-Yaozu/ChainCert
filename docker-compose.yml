@@ -1,0 +1,183 @@
+# ChainCert 区块链证书存证系统 - 完整 Docker Compose 配置
+# 一键启动所有服务
+
+services:
+  # ==================== 数据库服务 ====================
+  
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: chaincert-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: certificate_system
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./初始化数据库.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - chaincert-network
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: chaincert-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chaincert-network
+
+  # ==================== 区块链服务 ====================
+  
+  # FISCO BCOS 区块链节点
+  fisco-node:
+    image: fiscoorg/fiscobcos:v2.9.1
+    container_name: chaincert-fisco
+    restart: unless-stopped
+    ports:
+      - "20200:20200"  # Channel 端口 - SDK 连接
+      - "8545:8545"    # JSON-RPC 端口
+      - "30300:30300"  # P2P 端口
+    volumes:
+      - ./docker/fisco/nodes/127.0.0.1/node0/conf:/data/conf
+      - ./docker/fisco/nodes/127.0.0.1/node0/config.ini:/data/config.ini
+      - fisco_data:/data/data
+      - fisco_log:/data/log
+    working_dir: /data
+    command: ["-c", "config.ini"]
+    healthcheck:
+      test: ["CMD-SHELL", "ls /data/log/*.log 2>/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - chaincert-network
+
+  # ==================== 存储服务 ====================
+  
+  # IPFS 分布式存储
+  ipfs:
+    image: ipfs/kubo:v0.24.0
+    container_name: chaincert-ipfs
+    restart: unless-stopped
+    ports:
+      - "5001:5001"  # API 端口
+      - "8081:8080"  # Gateway 端口
+      - "4001:4001"  # P2P 端口
+    volumes:
+      - ipfs_data:/data/ipfs
+    environment:
+      - IPFS_PROFILE=server
+    healthcheck:
+      test: ["CMD-SHELL", "ipfs id || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - chaincert-network
+
+  # ==================== 应用服务 ====================
+  
+  # 后端 Spring Boot 服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: chaincert-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # 挂载 FISCO BCOS 配置文件
+      - ./backend/config/fisco:/app/config/fisco:ro
+    environment:
+      # 数据库配置
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/certificate_system?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root123456
+      # Redis 配置
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      # IPFS 配置
+      IPFS_HOST: ipfs
+      IPFS_PORT: 5001
+      IPFS_ENABLED: "true"
+      # FISCO BCOS 配置 - 暂时禁用，因为SDK不支持容器名作为主机名
+      # 后续可以通过WeBASE或者使用IP地址连接
+      FISCO_NODES: chaincert-fisco:20200
+      FISCO_CONFIG_PATH: /app/config/fisco/fisco-config-docker.toml
+      BLOCKCHAIN_ENABLED: "false"
+      # JWT 配置
+      JWT_SECRET: blockchain-certificate-system-secret-key-2024-docker
+      # Spring Profile
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      fisco-node:
+        condition: service_started
+      ipfs:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - chaincert-network
+
+  # 前端 Vue 服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: chaincert-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - chaincert-network
+
+# ==================== 网络配置 ====================
+networks:
+  chaincert-network:
+    driver: bridge
+
+# ==================== 数据卷配置 ====================
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  fisco_data:
+    driver: local
+  fisco_log:
+    driver: local
+  ipfs_data:
+    driver: local

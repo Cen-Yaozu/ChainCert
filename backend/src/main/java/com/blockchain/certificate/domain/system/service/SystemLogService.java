@@ -28,10 +28,19 @@ public class SystemLogService {
      * 记录系统日志
      */
     @Transactional(rollbackFor = Exception.class)
-    public void log(String userId, String username, String operation, 
+    public void log(String userId, String username, String operation,
                     String module, String content, String ipAddress) {
+        Long userIdLong = null;
+        if (userId != null && !userId.isEmpty()) {
+            try {
+                userIdLong = Long.parseLong(userId);
+            } catch (NumberFormatException e) {
+                // 如果无法解析，保持为null
+            }
+        }
+        
         SystemLog systemLog = SystemLog.builder()
-                .userId(userId)
+                .userId(userIdLong)
                 .username(username)
                 .operation(operation)
                 .module(module)
@@ -137,7 +146,7 @@ public class SystemLogService {
         
         // 用户筛选
         if (StringUtils.hasText(userId)) {
-            wrapper.eq(SystemLog::getUserId, userId);
+            wrapper.eq(SystemLog::getUserId, Long.parseLong(userId));
         }
         
         // 时间范围筛选

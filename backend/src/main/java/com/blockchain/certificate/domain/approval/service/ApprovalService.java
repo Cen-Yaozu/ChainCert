@@ -163,13 +163,15 @@ public class ApprovalService {
         log.info("开始审批申请，申请ID: {}, 审批人ID: {}, 动作: {}", applicationId, approverId, request.getAction());
 
         // 验证申请是否存在
-        Application application = applicationRepository.selectById(applicationId);
+        Long applicationIdLong = Long.parseLong(applicationId);
+        Application application = applicationRepository.selectById(applicationIdLong);
         if (application == null) {
             throw new BusinessException("申请不存在");
         }
 
         // 获取审批人信息
-        User approver = userRepository.selectById(approverId);
+        Long approverIdLong = Long.parseLong(approverId);
+        User approver = userRepository.selectById(approverIdLong);
         if (approver == null) {
             throw new BusinessException("审批人不存在");
         }
@@ -187,10 +189,10 @@ public class ApprovalService {
         }
 
         // 验证数字签名
-        validateDigitalSignature(request, approver, applicationId);
+        validateDigitalSignature(request, approver, applicationIdLong);
 
         // 创建审批记录
-        Approval approval = createApprovalRecord(applicationId, approverId, approvalLevel, request);
+        Approval approval = createApprovalRecord(applicationIdLong, approverIdLong, approvalLevel, request);
 
         // 更新申请状态
         String newStatus = updateApplicationStatus(application, approvalLevel, request.getAction());
@@ -228,7 +230,8 @@ public class ApprovalService {
                 approverId, certificateType, keyword, page, size);
 
         // 获取审批人信息
-        User approver = userRepository.selectById(approverId);
+        Long approverIdLong = Long.parseLong(approverId);
+        User approver = userRepository.selectById(approverIdLong);
         if (approver == null) {
             throw new BusinessException("审批人不存在");
         }
@@ -289,11 +292,11 @@ public class ApprovalService {
         LambdaQueryWrapper<Approval> queryWrapper = new LambdaQueryWrapper<>();
         
         if (StringUtils.isNotBlank(approverId)) {
-            queryWrapper.eq(Approval::getApproverId, approverId);
+            queryWrapper.eq(Approval::getApproverId, Long.parseLong(approverId));
         }
         
         if (StringUtils.isNotBlank(applicationId)) {
-            queryWrapper.eq(Approval::getApplicationId, applicationId);
+            queryWrapper.eq(Approval::getApplicationId, Long.parseLong(applicationId));
         }
         
         if (startDate != null) {
@@ -388,10 +391,10 @@ public class ApprovalService {
      * @param applicationId 申请ID
      * @throws BusinessException 业务异常
      */
-    private void validateDigitalSignature(ApprovalRequest request, User approver, String applicationId) throws BusinessException {
+    private void validateDigitalSignature(ApprovalRequest request, User approver, Long applicationId) throws BusinessException {
         try {
             // 构建待签名数据
-            String approvalData = buildApprovalData(applicationId, request.getAction(), request.getComment(), approver.getId());
+            String approvalData = buildApprovalData(String.valueOf(applicationId), request.getAction(), request.getComment(), String.valueOf(approver.getId()));
             
             // 解密审批人的私钥
             String decryptedPrivateKey = cryptoUtil.decrypt(approver.getPrivateKey());
@@ -434,7 +437,7 @@ public class ApprovalService {
      * @param request 审批请求
      * @return 审批记录
      */
-    private Approval createApprovalRecord(String applicationId, String approverId, String approvalLevel, ApprovalRequest request) {
+    private Approval createApprovalRecord(Long applicationId, Long approverId, String approvalLevel, ApprovalRequest request) {
         // 计算签名哈希
         String signatureHash = calculateSignatureHash(request.getSignature());
         
@@ -514,9 +517,9 @@ public class ApprovalService {
      */
     private ApprovalResponse buildApprovalResponse(Approval approval, User approver, String newStatus) {
         return ApprovalResponse.builder()
-                .id(approval.getId())
-                .applicationId(approval.getApplicationId())
-                .approverId(approval.getApproverId())
+                .id(String.valueOf(approval.getId()))
+                .applicationId(String.valueOf(approval.getApplicationId()))
+                .approverId(String.valueOf(approval.getApproverId()))
                 .approverName(approver.getName())
                 .approvalLevel(approval.getApprovalLevel())
                 .approvalLevelDesc(ApprovalLevel.getDescByCode(approval.getApprovalLevel()))
@@ -543,11 +546,11 @@ public class ApprovalService {
         }
 
         // 获取申请人信息
-        Set<String> applicantIds = applications.stream()
+        Set<Long> applicantIds = applications.stream()
                 .map(Application::getApplicantId)
                 .collect(Collectors.toSet());
         
-        Map<String, User> applicantMap = userRepository.selectBatchIds(applicantIds)
+        Map<Long, User> applicantMap = userRepository.selectBatchIds(applicantIds)
                 .stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
 
@@ -557,7 +560,7 @@ public class ApprovalService {
                     User applicant = applicantMap.get(application.getApplicantId());
                     
                     return ApprovalHistoryVO.builder()
-                            .applicationId(application.getId())
+                            .applicationId(String.valueOf(application.getId()))
                             .applicationTitle(application.getTitle())
                             .applicantName(applicant != null ? applicant.getName() : "未知")
                             .studentNo(applicant != null ? applicant.getStudentNo() : "未知")
@@ -587,29 +590,29 @@ public class ApprovalService {
         }
 
         // 获取申请信息
-        Set<String> applicationIds = approvals.stream()
+        Set<Long> applicationIds = approvals.stream()
                 .map(Approval::getApplicationId)
                 .collect(Collectors.toSet());
         
-        Map<String, Application> applicationMap = applicationRepository.selectBatchIds(applicationIds)
+        Map<Long, Application> applicationMap = applicationRepository.selectBatchIds(applicationIds)
                 .stream()
                 .collect(Collectors.toMap(Application::getId, app -> app));
 
         // 获取审批人信息
-        Set<String> approverIds = approvals.stream()
+        Set<Long> approverIds = approvals.stream()
                 .map(Approval::getApproverId)
                 .collect(Collectors.toSet());
         
-        Map<String, User> approverMap = userRepository.selectBatchIds(approverIds)
+        Map<Long, User> approverMap = userRepository.selectBatchIds(approverIds)
                 .stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
 
         // 获取申请人信息
-        Set<String> applicantIds = applicationMap.values().stream()
+        Set<Long> applicantIds = applicationMap.values().stream()
                 .map(Application::getApplicantId)
                 .collect(Collectors.toSet());
         
-        Map<String, User> applicantMap = userRepository.selectBatchIds(applicantIds)
+        Map<Long, User> applicantMap = userRepository.selectBatchIds(applicantIds)
                 .stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
 
@@ -621,13 +624,13 @@ public class ApprovalService {
                     User applicant = application != null ? applicantMap.get(application.getApplicantId()) : null;
                     
                     return ApprovalHistoryVO.builder()
-                            .id(approval.getId())
-                            .applicationId(approval.getApplicationId())
+                            .id(String.valueOf(approval.getId()))
+                            .applicationId(String.valueOf(approval.getApplicationId()))
                             .applicationTitle(application != null ? application.getTitle() : "未知")
                             .applicantName(applicant != null ? applicant.getName() : "未知")
                             .studentNo(applicant != null ? applicant.getStudentNo() : "未知")
                             .certificateType(application != null ? application.getCertificateType() : "未知")
-                            .approverId(approval.getApproverId())
+                            .approverId(String.valueOf(approval.getApproverId()))
                             .approverName(approver != null ? approver.getName() : "未知")
                             .approvalLevel(approval.getApprovalLevel())
                             .approvalLevelDesc(ApprovalLevel.getDescByCode(approval.getApprovalLevel()))

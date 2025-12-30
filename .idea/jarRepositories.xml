@@ -7,6 +7,16 @@
       <option name="url" value="https://maven.aliyun.com/repository/central" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="spring" />
+      <option name="name" value="spring" />
+      <option name="url" value="https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="central" />
+      <option name="name" value="Central Repository" />
+      <option name="url" value="https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="aliyun-spring" />
       <option name="name" value="阿里云Spring仓库" />
       <option name="url" value="https://maven.aliyun.com/repository/spring" />

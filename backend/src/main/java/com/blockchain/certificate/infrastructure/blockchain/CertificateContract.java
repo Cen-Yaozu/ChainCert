@@ -52,15 +52,13 @@ public class CertificateContract {
             // 获取合约地址
             this.contractAddress = blockchainConfig.getContractAddress();
             
+            // 使用 AssembleTransactionProcessor 直接创建，不需要 ABI/BIN 目录
+            this.transactionProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(
+                client, cryptoKeyPair);
+            
             if (StringUtils.hasText(contractAddress)) {
-                // SDK 3.x: 创建交易处理器时需要传入合约地址
-                this.transactionProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(
-                    client, cryptoKeyPair, CONTRACT_ABI, "", contractAddress);
                 log.info("证书合约包装类初始化成功，合约地址: {}", contractAddress);
             } else {
-                // 如果没有合约地址，创建一个临时的处理器（用于部署）
-                this.transactionProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(
-                    client, cryptoKeyPair, CONTRACT_ABI, "");
                 log.warn("合约地址未配置，请先部署合约或配置合约地址");
             }
         } catch (Exception e) {

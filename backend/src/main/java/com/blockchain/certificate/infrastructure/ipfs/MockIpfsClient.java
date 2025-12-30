@@ -185,7 +185,13 @@ public class MockIpfsClient implements IpfsClient {
             if (mockCid.length() > 46) {
                 mockCid = mockCid.substring(0, 46);
             } else if (mockCid.length() < 46) {
-                mockCid = mockCid + "A".repeat(46 - mockCid.length());
+                // 使用 StringBuilder 替代 String.repeat() 以兼容 Java 8
+                StringBuilder padding = new StringBuilder();
+                int repeatCount = 46 - mockCid.length();
+                for (int i = 0; i < repeatCount; i++) {
+                    padding.append("A");
+                }
+                mockCid = mockCid + padding.toString();
             }
             
             return mockCid;

@@ -43,7 +43,8 @@ public class MajorService {
         log.info("创建专业: {}", request.getName());
         
         // 验证学院是否存在
-        College college = collegeRepository.selectById(request.getCollegeId());
+        Long collegeIdLong = Long.parseLong(request.getCollegeId());
+        College college = collegeRepository.selectById(collegeIdLong);
         if (college == null) {
             throw new BusinessException("所属学院不存在");
         }
@@ -51,7 +52,7 @@ public class MajorService {
         // 检查专业名称在该学院下是否已存在
         LambdaQueryWrapper<Major> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Major::getName, request.getName());
-        wrapper.eq(Major::getCollegeId, request.getCollegeId());
+        wrapper.eq(Major::getCollegeId, collegeIdLong);
         if (majorRepository.selectCount(wrapper) > 0) {
             throw new BusinessException("该学院下已存在同名专业");
         }
@@ -69,7 +70,7 @@ public class MajorService {
         Major major = Major.builder()
                 .name(request.getName())
                 .code(request.getCode())
-                .collegeId(request.getCollegeId())
+                .collegeId(collegeIdLong)
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .build();
@@ -87,23 +88,25 @@ public class MajorService {
     public MajorResponse updateMajor(String majorId, MajorRequest request) {
         log.info("更新专业信息: {}", majorId);
         
-        Major major = majorRepository.selectById(majorId);
+        Long majorIdLong = Long.parseLong(majorId);
+        Major major = majorRepository.selectById(majorIdLong);
         if (major == null) {
             throw new BusinessException("专业不存在");
         }
         
         // 验证学院是否存在
-        College college = collegeRepository.selectById(request.getCollegeId());
+        Long collegeIdLong = Long.parseLong(request.getCollegeId());
+        College college = collegeRepository.selectById(collegeIdLong);
         if (college == null) {
             throw new BusinessException("所属学院不存在");
         }
         
         // 检查专业名称在该学院下是否被其他专业占用
-        if (!major.getName().equals(request.getName()) || !major.getCollegeId().equals(request.getCollegeId())) {
+        if (!major.getName().equals(request.getName()) || !major.getCollegeId().equals(collegeIdLong)) {
             LambdaQueryWrapper<Major> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(Major::getName, request.getName());
-            wrapper.eq(Major::getCollegeId, request.getCollegeId());
-            wrapper.ne(Major::getId, majorId);
+            wrapper.eq(Major::getCollegeId, collegeIdLong);
+            wrapper.ne(Major::getId, majorIdLong);
             if (majorRepository.selectCount(wrapper) > 0) {
                 throw new BusinessException("该学院下已存在同名专业");
             }
@@ -113,7 +116,7 @@ public class MajorService {
         if (StringUtils.hasText(request.getCode()) && !request.getCode().equals(major.getCode())) {
             LambdaQueryWrapper<Major> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(Major::getCode, request.getCode());
-            wrapper.ne(Major::getId, majorId);
+            wrapper.ne(Major::getId, majorIdLong);
             if (majorRepository.selectCount(wrapper) > 0) {
                 throw new BusinessException("专业代码已存在");
             }
@@ -122,7 +125,7 @@ public class MajorService {
         // 更新专业信息
         major.setName(request.getName());
         major.setCode(request.getCode());
-        major.setCollegeId(request.getCollegeId());
+        major.setCollegeId(collegeIdLong);
         major.setUpdateTime(LocalDateTime.now());
         
         majorRepository.updateById(major);
@@ -138,20 +141,21 @@ public class MajorService {
     public void deleteMajor(String majorId) {
         log.info("删除专业: {}", majorId);
         
-        Major major = majorRepository.selectById(majorId);
+        Long majorIdLong = Long.parseLong(majorId);
+        Major major = majorRepository.selectById(majorIdLong);
         if (major == null) {
             throw new BusinessException("专业不存在");
         }
         
         // 检查是否有用户关联该专业
         LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
-        userWrapper.eq(User::getMajorId, majorId);
+        userWrapper.eq(User::getMajorId, majorIdLong);
         long userCount = userRepository.selectCount(userWrapper);
         if (userCount > 0) {
             throw new BusinessException("该专业下还有用户，无法删除");
         }
         
-        majorRepository.deleteById(majorId);
+        majorRepository.deleteById(majorIdLong);
         log.info("专业删除成功: {}", majorId);
     }
     
@@ -161,7 +165,8 @@ public class MajorService {
     public MajorResponse getMajorById(String majorId) {
         log.info("获取专业详情: {}", majorId);
         
-        Major major = majorRepository.selectById(majorId);
+        Long majorIdLong = Long.parseLong(majorId);
+        Major major = majorRepository.selectById(majorIdLong);
         if (major == null) {
             throw new BusinessException("专业不存在");
         }
@@ -182,7 +187,7 @@ public class MajorService {
         
         // 学院筛选
         if (StringUtils.hasText(collegeId)) {
-            wrapper.eq(Major::getCollegeId, collegeId);
+            wrapper.eq(Major::getCollegeId, Long.parseLong(collegeId));
         }
         
         // 关键字搜索（专业名称、专业代码）
@@ -214,7 +219,7 @@ public class MajorService {
         log.info("获取学院的所有专业: collegeId={}", collegeId);
         
         LambdaQueryWrapper<Major> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Major::getCollegeId, collegeId);
+        wrapper.eq(Major::getCollegeId, Long.parseLong(collegeId));
         wrapper.orderByAsc(Major::getName);
         
         List<Major> majors = majorRepository.selectList(wrapper);
@@ -245,16 +250,16 @@ public class MajorService {
      */
     private MajorResponse convertToResponse(Major major) {
         MajorResponse response = MajorResponse.builder()
-                .id(major.getId())
+                .id(String.valueOf(major.getId()))
                 .name(major.getName())
                 .code(major.getCode())
-                .collegeId(major.getCollegeId())
+                .collegeId(major.getCollegeId() != null ? String.valueOf(major.getCollegeId()) : null)
                 .createTime(major.getCreateTime())
                 .updateTime(major.getUpdateTime())
                 .build();
         
         // 获取学院名称
-        if (StringUtils.hasText(major.getCollegeId())) {
+        if (major.getCollegeId() != null) {
             College college = collegeRepository.selectById(major.getCollegeId());
             if (college != null) {
                 response.setCollegeName(college.getName());

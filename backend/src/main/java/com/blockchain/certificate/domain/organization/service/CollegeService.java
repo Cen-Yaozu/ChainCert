@@ -56,8 +56,10 @@ public class CollegeService {
         }
         
         // 验证审批人是否存在
+        Long approverIdLong = null;
         if (StringUtils.hasText(request.getApproverId())) {
-            User approver = userRepository.selectById(request.getApproverId());
+            approverIdLong = Long.parseLong(request.getApproverId());
+            User approver = userRepository.selectById(approverIdLong);
             if (approver == null) {
                 throw new BusinessException("审批人不存在");
             }
@@ -70,7 +72,7 @@ public class CollegeService {
         College college = College.builder()
                 .name(request.getName())
                 .code(request.getCode())
-                .approverId(request.getApproverId())
+                .approverId(approverIdLong)
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .build();
@@ -88,7 +90,8 @@ public class CollegeService {
     public CollegeResponse updateCollege(String collegeId, CollegeRequest request) {
         log.info("更新学院信息: {}", collegeId);
         
-        College college = collegeRepository.selectById(collegeId);
+        Long collegeIdLong = Long.parseLong(collegeId);
+        College college = collegeRepository.selectById(collegeIdLong);
         if (college == null) {
             throw new BusinessException("学院不存在");
         }
@@ -97,7 +100,7 @@ public class CollegeService {
         if (!college.getName().equals(request.getName())) {
             LambdaQueryWrapper<College> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(College::getName, request.getName());
-            wrapper.ne(College::getId, collegeId);
+            wrapper.ne(College::getId, collegeIdLong);
             if (collegeRepository.selectCount(wrapper) > 0) {
                 throw new BusinessException("学院名称已存在");
             }
@@ -107,15 +110,17 @@ public class CollegeService {
         if (StringUtils.hasText(request.getCode()) && !request.getCode().equals(college.getCode())) {
             LambdaQueryWrapper<College> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(College::getCode, request.getCode());
-            wrapper.ne(College::getId, collegeId);
+            wrapper.ne(College::getId, collegeIdLong);
             if (collegeRepository.selectCount(wrapper) > 0) {
                 throw new BusinessException("学院代码已存在");
             }
         }
         
         // 验证审批人是否存在
+        Long approverIdLong = null;
         if (StringUtils.hasText(request.getApproverId())) {
-            User approver = userRepository.selectById(request.getApproverId());
+            approverIdLong = Long.parseLong(request.getApproverId());
+            User approver = userRepository.selectById(approverIdLong);
             if (approver == null) {
                 throw new BusinessException("审批人不存在");
             }
@@ -127,7 +132,7 @@ public class CollegeService {
         // 更新学院信息
         college.setName(request.getName());
         college.setCode(request.getCode());
-        college.setApproverId(request.getApproverId());
+        college.setApproverId(approverIdLong);
         college.setUpdateTime(LocalDateTime.now());
         
         collegeRepository.updateById(college);
@@ -143,20 +148,21 @@ public class CollegeService {
     public void deleteCollege(String collegeId) {
         log.info("删除学院: {}", collegeId);
         
-        College college = collegeRepository.selectById(collegeId);
+        Long collegeIdLong = Long.parseLong(collegeId);
+        College college = collegeRepository.selectById(collegeIdLong);
         if (college == null) {
             throw new BusinessException("学院不存在");
         }
         
         // 检查是否有用户关联该学院
         LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
-        userWrapper.eq(User::getCollegeId, collegeId);
+        userWrapper.eq(User::getCollegeId, collegeIdLong);
         long userCount = userRepository.selectCount(userWrapper);
         if (userCount > 0) {
             throw new BusinessException("该学院下还有用户，无法删除");
         }
         
-        collegeRepository.deleteById(collegeId);
+        collegeRepository.deleteById(collegeIdLong);
         log.info("学院删除成功: {}", collegeId);
     }
     
@@ -166,7 +172,8 @@ public class CollegeService {
     public CollegeResponse getCollegeById(String collegeId) {
         log.info("获取学院详情: {}", collegeId);
         
-        College college = collegeRepository.selectById(collegeId);
+        Long collegeIdLong = Long.parseLong(collegeId);
+        College college = collegeRepository.selectById(collegeIdLong);
         if (college == null) {
             throw new BusinessException("学院不存在");
         }
@@ -228,13 +235,15 @@ public class CollegeService {
     public void assignApprover(String collegeId, String approverId) {
         log.info("分配审批人: collegeId={}, approverId={}", collegeId, approverId);
         
-        College college = collegeRepository.selectById(collegeId);
+        Long collegeIdLong = Long.parseLong(collegeId);
+        College college = collegeRepository.selectById(collegeIdLong);
         if (college == null) {
             throw new BusinessException("学院不存在");
         }
         
         // 验证审批人是否存在
-        User approver = userRepository.selectById(approverId);
+        Long approverIdLong = Long.parseLong(approverId);
+        User approver = userRepository.selectById(approverIdLong);
         if (approver == null) {
             throw new BusinessException("审批人不存在");
         }
@@ -242,7 +251,7 @@ public class CollegeService {
             throw new BusinessException("审批人必须是教师或管理员");
         }
         
-        college.setApproverId(approverId);
+        college.setApproverId(approverIdLong);
         college.setUpdateTime(LocalDateTime.now());
         collegeRepository.updateById(college);
         
@@ -254,16 +263,16 @@ public class CollegeService {
      */
     private CollegeResponse convertToResponse(College college) {
         CollegeResponse response = CollegeResponse.builder()
-                .id(college.getId())
+                .id(String.valueOf(college.getId()))
                 .name(college.getName())
                 .code(college.getCode())
-                .approverId(college.getApproverId())
+                .approverId(college.getApproverId() != null ? String.valueOf(college.getApproverId()) : null)
                 .createTime(college.getCreateTime())
                 .updateTime(college.getUpdateTime())
                 .build();
         
         // 获取审批人姓名
-        if (StringUtils.hasText(college.getApproverId())) {
+        if (college.getApproverId() != null) {
             User approver = userRepository.selectById(college.getApproverId());
             if (approver != null) {
                 response.setApproverName(approver.getRealName());

@@ -21,8 +21,8 @@ public class SystemConfig {
     /**
      * 配置ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     
     /**
      * 配置键（唯一）

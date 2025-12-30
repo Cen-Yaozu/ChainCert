@@ -23,8 +23,8 @@ public class CertificateTemplate {
     /**
      * 模板ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     
     /**
      * 模板名称

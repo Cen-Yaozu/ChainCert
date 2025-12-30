@@ -88,24 +88,26 @@ public class StatisticsService {
         
         StatisticsVO statistics = new StatisticsVO();
         
+        Long collegeIdLong = Long.parseLong(collegeId);
+        
         // 该学院的申请统计
         LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Application::getCollegeId, collegeId);
+        wrapper.eq(Application::getCollegeId, collegeIdLong);
         statistics.setTotalApplications((long) applicationRepository.selectCount(wrapper));
         
         wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Application::getCollegeId, collegeId);
+        wrapper.eq(Application::getCollegeId, collegeIdLong);
         wrapper.eq(Application::getStatus, "PENDING");
         statistics.setPendingApplications((long) applicationRepository.selectCount(wrapper));
         
         wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Application::getCollegeId, collegeId);
+        wrapper.eq(Application::getCollegeId, collegeIdLong);
         wrapper.eq(Application::getStatus, "APPROVED");
         statistics.setApprovedApplications((long) applicationRepository.selectCount(wrapper));
         
         // 该学院的用户统计
         LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
-        userWrapper.eq(User::getCollegeId, collegeId);
+        userWrapper.eq(User::getCollegeId, collegeIdLong);
         statistics.setTotalUsers((long) userRepository.selectCount(userWrapper));
         
         return statistics;
@@ -168,7 +170,7 @@ public class StatisticsService {
         List<Application> applications = applicationRepository.selectList(null);
         List<College> colleges = collegeRepository.selectList(null);
         
-        Map<String, String> collegeIdToName = colleges.stream()
+        Map<Long, String> collegeIdToName = colleges.stream()
                 .collect(Collectors.toMap(College::getId, College::getName));
         
         Map<String, Long> result = applications.stream()
@@ -187,7 +189,7 @@ public class StatisticsService {
         Map<String, Long> result = applications.stream()
                 .filter(app -> app.getMajorId() != null)
                 .collect(Collectors.groupingBy(
-                        Application::getMajorId,
+                        app -> String.valueOf(app.getMajorId()),
                         Collectors.counting()
                 ));
         

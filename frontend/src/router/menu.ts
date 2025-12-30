@@ -78,6 +78,18 @@ export const menuConfig: MenuItem[] = [
         icon: 'Tickets',
       },
       {
+        path: '/admin/approval-flow',
+        name: 'ApprovalFlowConfig',
+        title: '审批流配置',
+        icon: 'SetUp',
+      },
+      {
+        path: '/admin/blockchain',
+        name: 'BlockchainConfig',
+        title: '区块链配置',
+        icon: 'Connection',
+      },
+      {
         path: '/admin/certificates',
         name: 'CertificateManagement',
         title: '证书管理',
@@ -88,6 +100,12 @@ export const menuConfig: MenuItem[] = [
         name: 'SystemLog',
         title: '系统日志',
         icon: 'Document',
+      },
+      {
+        path: '/admin/data-screen',
+        name: 'DataScreen',
+        title: '可视化大屏',
+        icon: 'DataAnalysis',
       },
     ],
   },

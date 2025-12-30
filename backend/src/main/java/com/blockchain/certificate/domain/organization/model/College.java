@@ -21,8 +21,8 @@ public class College {
     /**
      * 学院ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     
     /**
      * 学院名称
@@ -37,7 +37,7 @@ public class College {
     /**
      * 审批人ID（学院审批老师）
      */
-    private String approverId;
+    private Long approverId;
     
     /**
      * 创建时间

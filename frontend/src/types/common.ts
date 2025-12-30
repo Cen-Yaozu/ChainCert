@@ -1,10 +1,13 @@
 /**
  * API 响应结构
+ * 后端返回格式: { success: boolean, code: string, message: string, data: T, timestamp: string }
  */
 export interface ApiResponse<T = any> {
-  code: number
+  success: boolean
+  code: string | number
   message: string
   data: T
+  timestamp?: string
 }
 
 /**

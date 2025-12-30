@@ -3,11 +3,13 @@ package com.blockchain.certificate.interfaces.rest.auth;
 import com.blockchain.certificate.shared.common.Result;
 import com.blockchain.certificate.model.dto.LoginRequest;
 import com.blockchain.certificate.model.dto.RefreshTokenRequest;
+import com.blockchain.certificate.model.dto.RegisterRequest;
 import com.blockchain.certificate.model.vo.LoginResponse;
 import com.blockchain.certificate.domain.user.service.AuthService;
 import com.blockchain.certificate.infrastructure.security.CaptchaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -43,6 +45,27 @@ public class AuthController {
         
         log.info("User logged in successfully: {}", request.getUsername());
         return Result.success(response);
+    }
+
+    /**
+     * 用户注册
+     *
+     * @param request 注册请求
+     * @return 注册结果
+     */
+    @PostMapping("/register")
+    public Result<Map<String, Object>> register(@Validated @RequestBody RegisterRequest request) {
+        log.info("User registration attempt: {}", request.getUsername());
+        
+        String userId = authService.register(request);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("userId", userId);
+        result.put("username", request.getUsername());
+        result.put("message", "注册成功");
+        
+        log.info("User registered successfully: {}", request.getUsername());
+        return Result.success(result);
     }
 
     /**
@@ -98,5 +121,28 @@ public class AuthController {
         Result<Void> result = Result.<Void>success();
         result.setMessage("登出成功");
         return result;
+    }
+
+    /**
+     * 开发模式：初始化用户（跳过验证码）
+     * 仅用于开发环境初始化账号
+     *
+     * @param request 注册请求（不需要验证码字段）
+     * @return 注册结果
+     */
+    @PostMapping("/init-user")
+    public Result<Map<String, Object>> initUser(@RequestBody RegisterRequest request) {
+        log.warn("DEV MODE: Initializing user without captcha: {}", request.getUsername());
+        
+        // 跳过验证码验证
+        String userId = authService.register(request, false);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("userId", userId);
+        result.put("username", request.getUsername());
+        result.put("message", "用户初始化成功");
+        
+        log.info("User initialized successfully: {}", request.getUsername());
+        return Result.success(result);
     }
 }

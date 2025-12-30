@@ -4,9 +4,9 @@ package com.blockchain.certificate.domain.certificate.service;
 
 import com.blockchain.certificate.infrastructure.ipfs.IpfsService;
 import com.blockchain.certificate.infrastructure.blockchain.BlockchainService;
+import com.blockchain.certificate.infrastructure.blockchain.WebaseBlockchainService;
 import com.blockchain.certificate.shared.exception.BusinessException;
 import com.blockchain.certificate.domain.certificate.model.Certificate;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,10 @@ import java.security.MessageDigest;
 /**
  * 证书核验服务类
  * 提供证书三级验证功能（数据库 + 区块链 + IPFS）
+ *
+ * 支持两种区块链服务模式：
+ * 1. SDK 模式 (blockchain.enabled=true): 使用 FISCO BCOS SDK 直连
+ * 2. WeBASE 模式 (webase.enabled=true): 使用 WeBASE-Front HTTP API
  */
 @Service
 @Slf4j
@@ -24,16 +28,30 @@ public class VerificationService {
     private final CertificateService certificateService;
     private final IpfsService ipfsService;
     
-    // 区块链服务是可选的，如果未启用则为null
+    // SDK 模式的区块链服务（可选）
     private final BlockchainService blockchainService;
+    
+    // WeBASE 模式的区块链服务（可选）
+    private final WebaseBlockchainService webaseBlockchainService;
     
     public VerificationService(
             CertificateService certificateService,
             IpfsService ipfsService,
-            @org.springframework.beans.factory.annotation.Autowired(required = false) BlockchainService blockchainService) {
+            @org.springframework.beans.factory.annotation.Autowired(required = false) BlockchainService blockchainService,
+            @org.springframework.beans.factory.annotation.Autowired(required = false) WebaseBlockchainService webaseBlockchainService) {
         this.certificateService = certificateService;
         this.ipfsService = ipfsService;
         this.blockchainService = blockchainService;
+        this.webaseBlockchainService = webaseBlockchainService;
+        
+        // 日志输出当前使用的区块链模式
+        if (webaseBlockchainService != null) {
+            log.info("验证服务初始化：使用 WeBASE 模式");
+        } else if (blockchainService != null) {
+            log.info("验证服务初始化：使用 SDK 模式");
+        } else {
+            log.warn("验证服务初始化：区块链服务未启用");
+        }
     }
 
     /**
@@ -124,20 +142,14 @@ public class VerificationService {
 
     /**
      * 第二级验证：区块链验证
-     * 
+     * 优先使用 WeBASE 模式，其次使用 SDK 模式
+     *
      * @param certificate 证书信息
      * @param result 验证结果
      * @return 是否验证通过
      */
     private boolean performBlockchainCheck(Certificate certificate, VerificationResult result) {
         try {
-            // 如果区块链服务未启用，跳过区块链验证
-            if (blockchainService == null) {
-                log.warn("区块链服务未启用，跳过区块链验证，证书编号: {}", certificate.getCertificateNo());
-                result.setBlockchainCheck(true);
-                return true;
-            }
-            
             // 如果证书没有区块链交易哈希，跳过区块链验证
             if (StringUtils.isBlank(certificate.getBlockchainTxHash())) {
                 log.warn("证书没有区块链交易哈希，跳过区块链验证，证书编号: {}", certificate.getCertificateNo());
@@ -145,7 +157,63 @@ public class VerificationService {
                 return true;
             }
 
-            // 调用区块链服务验证证书
+            // 优先使用 WeBASE 模式
+            if (webaseBlockchainService != null) {
+                return performWebaseBlockchainCheck(certificate, result);
+            }
+            
+            // 其次使用 SDK 模式
+            if (blockchainService != null) {
+                return performSdkBlockchainCheck(certificate, result);
+            }
+            
+            // 如果区块链服务未启用，跳过区块链验证
+            log.warn("区块链服务未启用，跳过区块链验证，证书编号: {}", certificate.getCertificateNo());
+            result.setBlockchainCheck(true);
+            return true;
+
+        } catch (Exception e) {
+            log.error("区块链验证异常，证书编号: {}", certificate.getCertificateNo(), e);
+            result.setBlockchainCheck(false);
+            return false;
+        }
+    }
+    
+    /**
+     * 使用 WeBASE 模式进行区块链验证
+     */
+    private boolean performWebaseBlockchainCheck(Certificate certificate, VerificationResult result) {
+        try {
+            WebaseBlockchainService.CertificateVerificationResult blockchainResult =
+                webaseBlockchainService.verifyCertificate(certificate.getCertificateNo(), certificate.getFileHash());
+
+            result.setBlockchainCheck(blockchainResult.isValid());
+            result.setTransactionHash(certificate.getBlockchainTxHash());
+            result.setBlockHeight(certificate.getBlockHeight());
+            result.setBlockchainTimestamp(blockchainResult.getTimestamp());
+            result.setBlockchainStatus(blockchainResult.getStatus());
+            result.setBlockchainStatusDescription(blockchainResult.getStatusDescription());
+
+            if (blockchainResult.isValid()) {
+                log.info("区块链验证通过（WeBASE），证书编号: {}", certificate.getCertificateNo());
+                return true;
+            } else {
+                log.warn("区块链验证失败（WeBASE），证书编号: {}, 状态: {}",
+                        certificate.getCertificateNo(), blockchainResult.getStatusDescription());
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("区块链验证异常（WeBASE），证书编号: {}", certificate.getCertificateNo(), e);
+            result.setBlockchainCheck(false);
+            return false;
+        }
+    }
+    
+    /**
+     * 使用 SDK 模式进行区块链验证
+     */
+    private boolean performSdkBlockchainCheck(Certificate certificate, VerificationResult result) {
+        try {
             BlockchainService.CertificateVerificationResult blockchainResult =
                 blockchainService.verifyCertificate(certificate.getCertificateNo(), certificate.getFileHash());
 
@@ -155,15 +223,14 @@ public class VerificationService {
             result.setBlockchainTimestamp(blockchainResult.getTimestamp());
 
             if (blockchainResult.isValid()) {
-                log.info("区块链验证通过，证书编号: {}", certificate.getCertificateNo());
+                log.info("区块链验证通过（SDK），证书编号: {}", certificate.getCertificateNo());
                 return true;
             } else {
-                log.warn("区块链验证失败，证书编号: {}", certificate.getCertificateNo());
+                log.warn("区块链验证失败（SDK），证书编号: {}", certificate.getCertificateNo());
                 return false;
             }
-
         } catch (Exception e) {
-            log.error("区块链验证异常，证书编号: {}", certificate.getCertificateNo(), e);
+            log.error("区块链验证异常（SDK），证书编号: {}", certificate.getCertificateNo(), e);
             result.setBlockchainCheck(false);
             return false;
         }
@@ -299,6 +366,8 @@ public class VerificationService {
         private String transactionHash;
         private Long blockHeight;
         private Long blockchainTimestamp;
+        private Integer blockchainStatus;  // 区块链状态码: 0=有效, 1=不存在, 2=已撤销, 3=已过期, 4=哈希不匹配
+        private String blockchainStatusDescription;  // 区块链状态描述
         private String ipfsCid;
         private String downloadUrl;
         private long verificationTime;
@@ -333,6 +402,12 @@ public class VerificationService {
 
         public Long getBlockchainTimestamp() { return blockchainTimestamp; }
         public void setBlockchainTimestamp(Long blockchainTimestamp) { this.blockchainTimestamp = blockchainTimestamp; }
+        
+        public Integer getBlockchainStatus() { return blockchainStatus; }
+        public void setBlockchainStatus(Integer blockchainStatus) { this.blockchainStatus = blockchainStatus; }
+        
+        public String getBlockchainStatusDescription() { return blockchainStatusDescription; }
+        public void setBlockchainStatusDescription(String blockchainStatusDescription) { this.blockchainStatusDescription = blockchainStatusDescription; }
 
         public String getIpfsCid() { return ipfsCid; }
         public void setIpfsCid(String ipfsCid) { this.ipfsCid = ipfsCid; }

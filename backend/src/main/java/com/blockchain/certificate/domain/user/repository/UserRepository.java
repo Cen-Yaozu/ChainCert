@@ -25,7 +25,7 @@ public interface UserRepository extends BaseMapper<User> {
      * 保存用户（兼容方法）
      */
     default void save(User user) {
-        if (user.getId() == null || user.getId().isEmpty()) {
+        if (user.getId() == null) {
             insert(user);
         } else {
             updateById(user);

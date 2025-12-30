@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-container">
+    <!-- 欢迎卡片 -->
     <el-card class="welcome-card">
       <template #header>
         <div class="card-header">
@@ -14,6 +15,150 @@
         </div>
       </div>
     </el-card>
+
+    <!-- 统计卡片 - 学生端 -->
+    <div v-if="authStore.user?.role === UserRole.STUDENT" class="stats-cards">
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon primary">
+            <el-icon :size="32"><Document /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ studentStats.totalApplications }}</div>
+            <div class="stat-label">申请总数</div>
+          </div>
+        </div>
+      </el-card>
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon warning">
+            <el-icon :size="32"><Clock /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ studentStats.pendingApplications }}</div>
+            <div class="stat-label">待审批</div>
+          </div>
+        </div>
+      </el-card>
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon success">
+            <el-icon :size="32"><Medal /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ studentStats.totalCertificates }}</div>
+            <div class="stat-label">已获证书</div>
+          </div>
+        </div>
+      </el-card>
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon danger">
+            <el-icon :size="32"><CircleClose /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ studentStats.rejectedApplications }}</div>
+            <div class="stat-label">已驳回</div>
+          </div>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- 统计卡片 - 教师端 -->
+    <div v-if="isTeacher" class="stats-cards">
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon warning">
+            <el-icon :size="32"><Bell /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ teacherStats.pendingApprovals }}</div>
+            <div class="stat-label">待我审批</div>
+          </div>
+        </div>
+      </el-card>
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon success">
+            <el-icon :size="32"><CircleCheck /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ teacherStats.approvedCount }}</div>
+            <div class="stat-label">我已通过</div>
+          </div>
+        </div>
+      </el-card>
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon danger">
+            <el-icon :size="32"><CircleClose /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ teacherStats.rejectedCount }}</div>
+            <div class="stat-label">我已驳回</div>
+          </div>
+        </div>
+      </el-card>
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon primary">
+            <el-icon :size="32"><Document /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ teacherStats.totalApprovals }}</div>
+            <div class="stat-label">总审批量</div>
+          </div>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- 统计卡片 - 管理员端 -->
+    <div v-if="authStore.user?.role === UserRole.SYSTEM_ADMIN" class="stats-cards">
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon primary">
+            <el-icon :size="32"><User /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ adminStats.totalUsers }}</div>
+            <div class="stat-label">用户总数</div>
+          </div>
+        </div>
+      </el-card>
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon success">
+            <el-icon :size="32"><Medal /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ adminStats.totalCertificates }}</div>
+            <div class="stat-label">证书总数</div>
+          </div>
+        </div>
+      </el-card>
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon warning">
+            <el-icon :size="32"><School /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ adminStats.totalColleges }}</div>
+            <div class="stat-label">学院数量</div>
+          </div>
+        </div>
+      </el-card>
+      <el-card shadow="hover" class="stat-card">
+        <div class="stat-content">
+          <div class="stat-icon info">
+            <el-icon :size="32"><Connection /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ adminStats.blockHeight }}</div>
+            <div class="stat-label">区块高度</div>
+          </div>
+        </div>
+      </el-card>
+    </div>
 
     <!-- 快捷入口 -->
     <div class="quick-actions">
@@ -51,7 +196,7 @@
           v1.0.0
         </el-descriptions-item>
         <el-descriptions-item label="区块链网络">
-          FISCO BCOS
+          FISCO BCOS 2.x
         </el-descriptions-item>
         <el-descriptions-item label="存储方式">
           IPFS 分布式存储
@@ -68,15 +213,56 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { UserFilled, Document, Medal, CircleCheck, User, School } from '@element-plus/icons-vue'
+import {
+  UserFilled,
+  Document,
+  Medal,
+  CircleCheck,
+  CircleClose,
+  User,
+  School,
+  Clock,
+  Bell,
+  Connection
+} from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { UserRole } from '@/types'
 import { formatDateTime } from '@/utils/format'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+// 判断是否是教师
+const isTeacher = computed(() => {
+  return authStore.user?.role === UserRole.COLLEGE_ADMIN ||
+         authStore.user?.role === UserRole.SCHOOL_ADMIN
+})
+
+// 学生统计数据
+const studentStats = reactive({
+  totalApplications: 0,
+  pendingApplications: 0,
+  totalCertificates: 0,
+  rejectedApplications: 0
+})
+
+// 教师统计数据
+const teacherStats = reactive({
+  pendingApprovals: 0,
+  approvedCount: 0,
+  rejectedCount: 0,
+  totalApprovals: 0
+})
+
+// 管理员统计数据
+const adminStats = reactive({
+  totalUsers: 0,
+  totalCertificates: 0,
+  totalColleges: 0,
+  blockHeight: 0
+})
 
 // 问候语
 const greeting = computed(() => {
@@ -92,12 +278,11 @@ const greeting = computed(() => {
 })
 
 // 获取角色文本
-// 注意：后端使用 COLLEGE_TEACHER/SCHOOL_TEACHER，不是 COLLEGE_ADMIN/SCHOOL_ADMIN
 const getRoleText = (role?: UserRole | string) => {
   const roleMap: Record<string, string> = {
     [UserRole.STUDENT]: '学生',
-    [UserRole.COLLEGE_TEACHER]: '学院教师',
-    [UserRole.SCHOOL_TEACHER]: '学校教师',
+    [UserRole.COLLEGE_ADMIN]: '学院教师',
+    [UserRole.SCHOOL_ADMIN]: '学校教师',
     [UserRole.SYSTEM_ADMIN]: '系统管理员',
   }
   return role ? (roleMap[role] || role) : '未知'
@@ -126,10 +311,7 @@ const quickActions = computed(() => {
     )
   }
 
-  if (
-    authStore.user?.role === UserRole.COLLEGE_TEACHER ||
-    authStore.user?.role === UserRole.SCHOOL_TEACHER
-  ) {
+  if (isTeacher.value) {
     actions.push(
       {
         title: '待审批',
@@ -163,11 +345,55 @@ const quickActions = computed(() => {
         icon: 'School',
         color: '#67C23A',
         path: '/admin/colleges',
+      },
+      {
+        title: '可视化大屏',
+        description: '查看数据统计大屏',
+        icon: 'DataAnalysis',
+        color: '#E6A23C',
+        path: '/admin/data-screen',
+      },
+      {
+        title: '区块链配置',
+        description: '查看区块链网络状态',
+        icon: 'Connection',
+        color: '#909399',
+        path: '/admin/blockchain',
       }
     )
   }
 
   return actions
+})
+
+// 加载统计数据
+const loadStats = async () => {
+  try {
+    // TODO: 调用后端API获取统计数据
+    // 模拟数据
+    if (authStore.user?.role === UserRole.STUDENT) {
+      studentStats.totalApplications = 5
+      studentStats.pendingApplications = 2
+      studentStats.totalCertificates = 3
+      studentStats.rejectedApplications = 0
+    } else if (isTeacher.value) {
+      teacherStats.pendingApprovals = 8
+      teacherStats.approvedCount = 45
+      teacherStats.rejectedCount = 5
+      teacherStats.totalApprovals = 58
+    } else if (authStore.user?.role === UserRole.SYSTEM_ADMIN) {
+      adminStats.totalUsers = 256
+      adminStats.totalCertificates = 1256
+      adminStats.totalColleges = 12
+      adminStats.blockHeight = 125678
+    }
+  } catch (error) {
+    console.error('加载统计数据失败', error)
+  }
+}
+
+onMounted(() => {
+  loadStats()
 })
 </script>
 
@@ -205,9 +431,67 @@ const quickActions = computed(() => {
     }
   }
 
+  .stats-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+
+    .stat-card {
+      .stat-content {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .stat-icon {
+          width: 64px;
+          height: 64px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+
+          &.primary {
+            background: linear-gradient(135deg, #409EFF, #66b1ff);
+          }
+
+          &.success {
+            background: linear-gradient(135deg, #67C23A, #85ce61);
+          }
+
+          &.warning {
+            background: linear-gradient(135deg, #E6A23C, #ebb563);
+          }
+
+          &.danger {
+            background: linear-gradient(135deg, #F56C6C, #f78989);
+          }
+
+          &.info {
+            background: linear-gradient(135deg, #909399, #a6a9ad);
+          }
+        }
+
+        .stat-info {
+          .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--el-text-color-primary);
+          }
+
+          .stat-label {
+            font-size: 14px;
+            color: var(--el-text-color-secondary);
+          }
+        }
+      }
+    }
+  }
+
   .quick-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
 
@@ -251,6 +535,14 @@ const quickActions = computed(() => {
   }
 }
 
+@media (max-width: 1200px) {
+  .dashboard-container {
+    .stats-cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 12px;
@@ -260,6 +552,10 @@ const quickActions = computed(() => {
         flex-direction: column;
         text-align: center;
       }
+    }
+
+    .stats-cards {
+      grid-template-columns: 1fr;
     }
 
     .quick-actions {

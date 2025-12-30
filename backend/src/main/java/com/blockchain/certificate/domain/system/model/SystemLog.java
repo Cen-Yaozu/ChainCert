@@ -19,13 +19,13 @@ public class SystemLog {
     /**
      * 日志ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     
     /**
      * 用户ID
      */
-    private String userId;
+    private Long userId;
     
     /**
      * 用户名
@@ -76,8 +76,8 @@ public class SystemLog {
     }
     
     public static class SystemLogBuilder {
-        private String id;
-        private String userId;
+        private Long id;
+        private Long userId;
         private String username;
         private String operation;
         private String module;
@@ -90,12 +90,12 @@ public class SystemLog {
         SystemLogBuilder() {
         }
         
-        public SystemLogBuilder id(String id) {
+        public SystemLogBuilder id(Long id) {
             this.id = id;
             return this;
         }
         
-        public SystemLogBuilder userId(String userId) {
+        public SystemLogBuilder userId(Long userId) {
             this.userId = userId;
             return this;
         }
